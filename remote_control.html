@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meus Recortes - Controle Remoto 🎬</title>
+    <title>Meus Recortes - Controle Remoto Duplo 🎬</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
@@ -26,14 +26,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
             padding: 16px;
         }
 
         header {
             text-align: center;
             margin-top: 8px;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
 
         .logo-badge {
@@ -52,100 +51,103 @@
         }
 
         h1 {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 900;
             background: linear-gradient(135deg, #ffffff 0%, #a0a5c0 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        main {
+        /* BOTÃO MESTRE AMBAS AS CÂMERAS */
+        .master-bar {
             width: 100%;
-            max-width: 440px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
+            max-width: 900px;
+            margin-bottom: 16px;
         }
 
-        /* CARD DE MONITOR DE VÍDEO */
-        .video-card {
+        .btn-master {
             width: 100%;
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            border: none;
+            border-radius: 16px;
+            padding: 16px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            box-shadow: 0 0 25px rgba(255, 152, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: transform 0.1s ease;
+        }
+
+        .btn-master:active, .btn-master.active {
+            transform: scale(0.97);
+        }
+
+        /* GRID DAS DUAS CÂMERAS */
+        .cameras-grid {
+            width: 100%;
+            max-width: 900px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .camera-card {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 18px;
-            padding: 14px;
+            border-radius: 20px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            align-items: center;
+            gap: 12px;
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            position: relative;
         }
 
-        .video-header {
+        .card-header {
+            width: 100%;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
+        .camera-title {
+            font-size: 14px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .title-cam1 { color: #ff4444; }
+        .title-cam2 { color: #2196F3; }
+
         .live-indicator {
             display: flex;
             align-items: center;
             gap: 6px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 800;
-            color: #ff4444;
-            letter-spacing: 1px;
+            color: #4CAF50;
         }
 
         .dot {
-            width: 8px;
-            height: 8px;
-            background-color: #ff4444;
+            width: 6px;
+            height: 6px;
+            background-color: #4CAF50;
             border-radius: 50%;
-            box-shadow: 0 0 8px #ff4444;
-            animation: blink 1.2s infinite;
+            box-shadow: 0 0 6px #4CAF50;
         }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        .ip-bar {
-            display: flex;
-            gap: 8px;
-        }
-
-        .ip-input {
-            flex: 1;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 10px;
-            padding: 8px 12px;
-            color: #fff;
-            font-size: 14px;
-            font-weight: 600;
-            outline: none;
-            text-align: center;
-        }
-
-        .btn-connect {
-            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
-            border: none;
-            border-radius: 10px;
-            color: #fff;
-            font-size: 12px;
-            font-weight: 800;
-            padding: 0 16px;
-            cursor: pointer;
-            transition: transform 0.1s ease;
-        }
-
-        .btn-connect:active {
-            transform: scale(0.95);
-        }
-
+        /* VISOR DE VÍDEO */
         .video-viewport {
             width: 100%;
             aspect-ratio: 16/9;
@@ -172,249 +174,270 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 16px;
+            padding: 12px;
             text-align: center;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             color: #a0a5c0;
         }
 
-        /* CONFIGURAÇÃO E BOTÃO DE CORTE */
-        .config-card {
+        /* INPUTS */
+        .input-group {
             width: 100%;
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 12px 16px;
             display: flex;
             flex-direction: column;
             gap: 6px;
         }
 
         label {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             color: #8a8fa8;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
-        .license-input {
+        input {
             width: 100%;
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 10px;
-            padding: 10px 14px;
+            padding: 8px 12px;
             color: #fff;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             outline: none;
             text-align: center;
-            letter-spacing: 1px;
         }
 
-        .arcade-badge {
-            background: rgba(76, 175, 80, 0.15);
-            border: 1px solid rgba(76, 175, 80, 0.3);
-            color: #4CAF50;
-            padding: 6px 12px;
-            border-radius: 12px;
+        .ip-row {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-connect {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #fff;
             font-size: 11px;
-            font-weight: 700;
-            margin-top: 4px;
-            text-align: center;
+            font-weight: 800;
+            padding: 0 12px;
+            cursor: pointer;
         }
 
+        /* BOTÃO DE CORTE DA CÂMERA */
         .btn-trigger {
-            width: 180px;
-            height: 180px;
+            width: 140px;
+            height: 140px;
             border-radius: 50%;
             border: none;
-            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
-            box-shadow: 
-                0 0 40px rgba(255, 68, 68, 0.4),
-                inset 0 4px 10px rgba(255, 255, 255, 0.4),
-                inset 0 -6px 15px rgba(0, 0, 0, 0.4);
             color: #ffffff;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-            position: relative;
+            gap: 4px;
+            transition: transform 0.15s ease;
             outline: none;
-            margin-top: 6px;
+            margin-top: 8px;
+        }
+
+        .btn-cam1 {
+            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+            box-shadow: 0 0 30px rgba(255, 68, 68, 0.4);
+        }
+
+        .btn-cam2 {
+            background: linear-gradient(135deg, #2196F3 0%, #1565C0 100%);
+            box-shadow: 0 0 30px rgba(33, 150, 243, 0.4);
         }
 
         .btn-trigger:active, .btn-trigger.active {
             transform: scale(0.92);
-            box-shadow: 0 0 20px rgba(255, 68, 68, 0.6);
         }
 
-        .btn-icon {
-            font-size: 38px;
-        }
+        .btn-icon { font-size: 30px; }
+        .btn-text { font-size: 13px; font-weight: 900; letter-spacing: 1px; }
 
-        .btn-text {
-            font-size: 16px;
-            font-weight: 900;
-            letter-spacing: 1.5px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-
-        .pulse-ring {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 2px solid rgba(255, 68, 68, 0.5);
-            animation: pulseRing 2s infinite;
-            pointer-events: none;
-        }
-
-        @keyframes pulseRing {
-            0% { transform: scale(1); opacity: 0.8; }
-            100% { transform: scale(1.3); opacity: 0; }
+        .hotkey-tag {
+            font-size: 10px;
+            color: #a0a5c0;
+            background: rgba(0,0,0,0.3);
+            padding: 2px 8px;
+            border-radius: 8px;
+            margin-top: 2px;
         }
 
         .status-msg {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
-            color: #4CAF50;
-            min-height: 18px;
+            min-height: 16px;
             text-align: center;
             opacity: 0;
             transition: opacity 0.3s ease;
         }
 
-        .status-msg.show {
-            opacity: 1;
-        }
+        .status-msg.show { opacity: 1; }
 
         footer {
             font-size: 11px;
             color: #5a5f78;
             text-align: center;
-            margin-top: 12px;
+            margin-top: 24px;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo-badge">Controle Remoto + Arcade</div>
+        <div class="logo-badge">Painel de Controle Remoto Duplo</div>
         <h1>Meus Recortes 🎬</h1>
     </header>
 
-    <main>
-        <!-- JANELA DE MONITORAMENTO DE VÍDEO WI-FI -->
-        <div class="video-card">
-            <div class="video-header">
-                <label>Visor da Câmera (Wi-Fi Local)</label>
-                <div class="live-indicator">
-                    <div class="dot"></div>
-                    <span>AO VIVO</span>
-                </div>
-            </div>
+    <!-- BARRA DO BOTÃO MESTRE (CORTAR AMBAS) -->
+    <div class="master-bar">
+        <button class="btn-master" id="btnMaster" onclick="sendMasterCommand()">
+            <span>⚡ CORTAR AS 2 CÂMERAS AO MESMO TEMPO</span>
+            <span class="hotkey-tag">[Tecla 'A' / Botão Mestre]</span>
+        </button>
+    </div>
 
-            <div class="ip-bar">
-                <input type="text" class="ip-input" id="cameraIp" placeholder="Ex: 192.168.1.50">
-                <button class="btn-connect" onclick="connectStream()">CONECTAR</button>
+    <!-- GRID DAS DUAS CÂMERAS -->
+    <div class="cameras-grid">
+
+        <!-- CÂMERA 1 (LADO A / VERMELHO) -->
+        <div class="camera-card">
+            <div class="card-header">
+                <div class="camera-title title-cam1">🎥 CÂMERA 1</div>
+                <div class="live-indicator"><div class="dot"></div><span>ONLINE</span></div>
             </div>
 
             <div class="video-viewport">
-                <img id="mjpegStream" src="" alt="" onerror="onStreamError(this)" onload="onStreamLoad()">
-                <div class="video-overlay" id="streamOverlay">
-                    <span id="overlayText">Digite o IP do celular da câmera e clique em CONECTAR</span>
+                <img id="mjpegStream1" src="" alt="" onerror="onStreamError(1)" onload="onStreamLoad(1)">
+                <div class="video-overlay" id="streamOverlay1">
+                    <span id="overlayText1">Digite o IP da Câmera 1</span>
                 </div>
             </div>
+
+            <div class="input-group">
+                <label>IP da Câmera 1 (Wi-Fi)</label>
+                <div class="ip-row">
+                    <input type="text" id="cameraIp1" placeholder="Ex: 192.168.1.50">
+                    <button class="btn-connect" onclick="connectStream(1)">CONECTAR</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Chave da Licença 1</label>
+                <input type="text" id="licenseKey1" placeholder="Licença Câmera 1...">
+            </div>
+
+            <button class="btn-trigger btn-cam1" id="btnTrigger1" onclick="sendClipCommand(1)">
+                <div class="btn-icon">⚡</div>
+                <div class="btn-text">CORTAR CÂM 1</div>
+                <div class="hotkey-tag">[Espaço]</div>
+            </button>
+
+            <div class="status-msg" id="statusMsg1"></div>
         </div>
 
-        <!-- CHAVE E BOTÃO DE CORTE -->
-        <div class="config-card">
-            <label for="licenseKey">Chave da Licença</label>
-            <input type="text" class="license-input" id="licenseKey" placeholder="Cole sua chave aqui..." autocomplete="off">
-            <div class="arcade-badge">🕹️ Suporte Ativo: Botões Arcade, Pedais USB, Teclado ou Bluetooth</div>
+        <!-- CÂMERA 2 (LADO B / AZUL) -->
+        <div class="camera-card">
+            <div class="card-header">
+                <div class="camera-title title-cam2">🎥 CÂMERA 2</div>
+                <div class="live-indicator"><div class="dot"></div><span>ONLINE</span></div>
+            </div>
+
+            <div class="video-viewport">
+                <img id="mjpegStream2" src="" alt="" onerror="onStreamError(2)" onload="onStreamLoad(2)">
+                <div class="video-overlay" id="streamOverlay2">
+                    <span id="overlayText2">Digite o IP da Câmera 2</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>IP da Câmera 2 (Wi-Fi)</label>
+                <div class="ip-row">
+                    <input type="text" id="cameraIp2" placeholder="Ex: 192.168.1.60">
+                    <button class="btn-connect" onclick="connectStream(2)">CONECTAR</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Chave da Licença 2</label>
+                <input type="text" id="licenseKey2" placeholder="Licença Câmera 2...">
+            </div>
+
+            <button class="btn-trigger btn-cam2" id="btnTrigger2" onclick="sendClipCommand(2)">
+                <div class="btn-icon">⚡</div>
+                <div class="btn-text">CORTAR CÂM 2</div>
+                <div class="hotkey-tag">[Enter]</div>
+            </button>
+
+            <div class="status-msg" id="statusMsg2"></div>
         </div>
 
-        <button class="btn-trigger" id="btnTrigger" onclick="sendClipCommand()">
-            <div class="pulse-ring"></div>
-            <div class="btn-icon">⚡</div>
-            <div class="btn-text">CORTAR REPLAY</div>
-        </button>
-
-        <div class="status-msg" id="statusMsg">Recorte enviado com sucesso! 🚀</div>
-    </main>
+    </div>
 
     <footer>
-        Supabase Cloud + Arcade Support • Meus Recortes
+        Supabase Cloud Dual Control • Meus Recortes Arcade
     </footer>
 
     <script>
         const SUPABASE_URL = "https://jmlkgxkvlrtpqukgmdqu.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptbGtneGt2bHJ0cHF1a2dtZHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxOTk3NDUsImV4cCI6MjA5OTc3NTc0NX0.mICpFr2gZfUvKmZb_RDqnw3yoswgKeaV2smZkbhb17w";
 
-        const inputKey = document.getElementById('licenseKey');
-        const inputIp = document.getElementById('cameraIp');
-        const statusMsg = document.getElementById('statusMsg');
-        const btnTrigger = document.getElementById('btnTrigger');
-        const mjpegStream = document.getElementById('mjpegStream');
-        const streamOverlay = document.getElementById('streamOverlay');
-        const overlayText = document.getElementById('overlayText');
+        const inputKey1 = document.getElementById('licenseKey1');
+        const inputKey2 = document.getElementById('licenseKey2');
+        const inputIp1 = document.getElementById('cameraIp1');
+        const inputIp2 = document.getElementById('cameraIp2');
 
-        // Carregar licença e IP salvos
-        const savedKey = localStorage.getItem('remote_license_key');
-        if (savedKey) inputKey.value = savedKey;
-
-        const savedIp = localStorage.getItem('remote_camera_ip');
-        if (savedIp) {
-            inputIp.value = savedIp;
-            connectStream();
+        // Carregar licenças e IPs salvos no localStorage
+        if (localStorage.getItem('remote_key_1')) inputKey1.value = localStorage.getItem('remote_key_1');
+        if (localStorage.getItem('remote_key_2')) inputKey2.value = localStorage.getItem('remote_key_2');
+        
+        if (localStorage.getItem('remote_ip_1')) {
+            inputIp1.value = localStorage.getItem('remote_ip_1');
+            connectStream(1);
+        }
+        if (localStorage.getItem('remote_ip_2')) {
+            inputIp2.value = localStorage.getItem('remote_ip_2');
+            connectStream(2);
         }
 
-        inputKey.addEventListener('input', () => {
-            localStorage.setItem('remote_license_key', inputKey.value.trim());
-        });
+        inputKey1.addEventListener('input', () => localStorage.setItem('remote_key_1', inputKey1.value.trim()));
+        inputKey2.addEventListener('input', () => localStorage.setItem('remote_key_2', inputKey2.value.trim()));
 
-        function connectStream() {
-            const ip = inputIp.value.trim();
+        function connectStream(camNum) {
+            const ipInput = camNum === 1 ? inputIp1 : inputIp2;
+            const img = document.getElementById(`mjpegStream${camNum}`);
+            const overlay = document.getElementById(`streamOverlay${camNum}`);
+            const overlayText = document.getElementById(`overlayText${camNum}`);
+
+            const ip = ipInput.value.trim();
             if (!ip) return;
-            localStorage.setItem('remote_camera_ip', ip);
+            localStorage.setItem(`remote_ip_${camNum}`, ip);
 
-            overlayText.textContent = "Conectando ao visor da câmera...";
-            streamOverlay.style.display = "flex";
+            overlayText.textContent = `Conectando Câmera ${camNum}...`;
+            overlay.style.display = "flex";
 
-            mjpegStream.src = `http://${ip}:8080/stream?t=${Date.now()}`;
+            img.src = `http://${ip}:8080/stream?t=${Date.now()}`;
         }
 
-        function onStreamLoad() {
-            streamOverlay.style.display = "none";
+        function onStreamLoad(camNum) {
+            document.getElementById(`streamOverlay${camNum}`).style.display = "none";
         }
 
-        function onStreamError() {
-            streamOverlay.style.display = "flex";
-            overlayText.textContent = "Câmera Offline ou IP Incorreto (Verifique o Wi-Fi)";
+        function onStreamError(camNum) {
+            document.getElementById(`streamOverlay${camNum}`).style.display = "flex";
+            document.getElementById(`overlayText${camNum}`).textContent = `Câmera ${camNum} Offline ou IP Incorreto`;
         }
 
-        async function sendClipCommand() {
-            const key = inputKey.value.trim();
-            if (!key) {
-                alert("Por favor, digite sua chave de licença!");
-                inputKey.focus();
-                return;
-            }
-
-            if (navigator.vibrate) {
-                navigator.vibrate(80);
-            }
-
+        async function postCommand(key) {
+            if (!key) return false;
             try {
-                btnTrigger.classList.add('active');
-                setTimeout(() => btnTrigger.classList.remove('active'), 150);
-
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/replay_commands`, {
                     method: 'POST',
                     headers: {
@@ -423,61 +446,116 @@
                         'Content-Type': 'application/json',
                         'Prefer': 'return=minimal'
                     },
-                    body: JSON.stringify({
-                        license_key: key,
-                        command: 'TRIGGER_CLIP'
-                    })
+                    body: JSON.stringify({ license_key: key, command: 'TRIGGER_CLIP' })
                 });
-
-                if (response.ok) {
-                    showStatus("Recorte enviado para a Câmera! 🎥✨", "#4CAF50");
-                } else {
-                    showStatus("Erro ao enviar comando. Verifique a chave.", "#ff4444");
-                }
-            } catch (err) {
-                showStatus("Erro de conexão com a rede.", "#ff4444");
+                return response.ok;
+            } catch (_) {
+                return false;
             }
         }
 
-        function showStatus(text, color) {
-            statusMsg.textContent = text;
-            statusMsg.style.color = color;
-            statusMsg.classList.add('show');
-            setTimeout(() => {
-                statusMsg.classList.remove('show');
-            }, 3000);
-        }
+        async function sendClipCommand(camNum) {
+            const btn = document.getElementById(`btnTrigger${camNum}`);
+            const keyInput = camNum === 1 ? inputKey1 : inputKey2;
+            const key = keyInput.value.trim();
 
-        /* --- SUPORTE A BOTÕES DE ARCADE FÍSICOS & TECLADO --- */
-        document.addEventListener('keydown', (event) => {
-            // Se o usuário não estiver com foco digitando a licença ou IP
-            if (document.activeElement === inputKey || document.activeElement === inputIp) {
+            if (!key) {
+                alert(`Por favor, digite a chave da Licença da Câmera ${camNum}!`);
+                keyInput.focus();
                 return;
             }
 
-            // Qualquer tecla de acionamento (Espaço, Enter, NumpadEnter, etc)
-            if (event.code === 'Space' || event.code === 'Enter' || event.code === 'NumpadEnter' || event.key === ' ') {
+            if (navigator.vibrate) navigator.vibrate(80);
+
+            btn.classList.add('active');
+            setTimeout(() => btn.classList.remove('active'), 150);
+
+            const ok = await postCommand(key);
+            showStatus(camNum, ok ? `Câmera ${camNum} Cortada! 🚀` : "Erro ao enviar", ok ? "#4CAF50" : "#ff4444");
+        }
+
+        async function sendMasterCommand() {
+            const btn = document.getElementById('btnMaster');
+            const key1 = inputKey1.value.trim();
+            const key2 = inputKey2.value.trim();
+
+            if (!key1 && !key2) {
+                alert("Digite a chave de ao menos uma câmera!");
+                return;
+            }
+
+            if (navigator.vibrate) navigator.vibrate([80, 50, 80]);
+
+            btn.classList.add('active');
+            setTimeout(() => btn.classList.remove('active'), 150);
+
+            const res1 = key1 ? postCommand(key1) : Promise.resolve(false);
+            const res2 = key2 ? postCommand(key2) : Promise.resolve(false);
+
+            const [ok1, ok2] = await Promise.all([res1, res2]);
+
+            if (key1) showStatus(1, ok1 ? "Câmera 1 Cortada! 🚀" : "Erro", ok1 ? "#4CAF50" : "#ff4444");
+            if (key2) showStatus(2, ok2 ? "Câmera 2 Cortada! 🚀" : "Erro", ok2 ? "#4CAF50" : "#ff4444");
+        }
+
+        function showStatus(camNum, text, color) {
+            const msg = document.getElementById(`statusMsg${camNum}`);
+            msg.textContent = text;
+            msg.style.color = color;
+            msg.classList.add('show');
+            setTimeout(() => msg.classList.remove('show'), 3000);
+        }
+
+        /* --- SUPORTE A BOTÕES DE ARCADE FÍSICOS DA QUADRA --- */
+        document.addEventListener('keydown', (event) => {
+            if ([inputKey1, inputKey2, inputIp1, inputIp2].includes(document.activeElement)) return;
+
+            // Tecla Espaço = Câmera 1
+            if (event.code === 'Space' || event.key === ' ') {
                 event.preventDefault();
-                sendClipCommand();
+                sendClipCommand(1);
+            }
+            // Tecla Enter = Câmera 2
+            else if (event.code === 'Enter' || event.code === 'NumpadEnter') {
+                event.preventDefault();
+                sendClipCommand(2);
+            }
+            // Tecla 'A' ou 'M' = AMBAS AS CÂMERAS
+            else if (event.key.toLowerCase() === 'a' || event.key.toLowerCase() === 'm') {
+                event.preventDefault();
+                sendMasterCommand();
             }
         });
 
-        /* --- SUPORTE A CONTROLES / PLACAS DE FLIPERAMA USB (GAMEPAD API) --- */
-        window.addEventListener("gamepadconnected", () => {
-            pollGamepad();
-        });
-
-        let lastGamepadState = false;
+        /* --- SUPORTE A CONTROLES / FLIPERAMAS USB (GAMEPAD API) --- */
+        window.addEventListener("gamepadconnected", () => pollGamepad());
+        let lastState = {};
         function pollGamepad() {
             const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
             for (const gp of gamepads) {
                 if (gp) {
-                    const anyButtonPressed = gp.buttons.some(b => b.pressed);
-                    if (anyButtonPressed && !lastGamepadState) {
-                        lastGamepadState = true;
-                        sendClipCommand();
-                    } else if (!anyButtonPressed) {
-                        lastGamepadState = false;
+                    // Botão 0 (A/X) = Câmera 1
+                    if (gp.buttons[0] && gp.buttons[0].pressed && !lastState['b0']) {
+                        lastState['b0'] = true;
+                        sendClipCommand(1);
+                    } else if (gp.buttons[0] && !gp.buttons[0].pressed) {
+                        lastState['b0'] = false;
+                    }
+
+                    // Botão 1 (B/Circle) = Câmera 2
+                    if (gp.buttons[1] && gp.buttons[1].pressed && !lastState['b1']) {
+                        lastState['b1'] = true;
+                        sendClipCommand(2);
+                    } else if (gp.buttons[1] && !gp.buttons[1].pressed) {
+                        lastState['b1'] = false;
+                    }
+
+                    // Botão 2 (X/Square) ou Botão 3 = Ambas
+                    if (gp.buttons[2] && gp.buttons[2].pressed && !lastState['b2']) {
+                        lastState['b2'] = true;
+                        sendMasterCommand();
+                    } else if (gp.buttons[2] && !gp.buttons[2].pressed) {
+                        lastState['b2'] = false;
                     }
                 }
             }
