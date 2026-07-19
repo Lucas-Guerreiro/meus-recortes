@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Recortes - Controle Remoto 🎬</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #0d0f17;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(255, 68, 68, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(33, 150, 243, 0.15) 0px, transparent 50%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+        }
+
+        header {
+            text-align: center;
+            margin-top: 8px;
+            margin-bottom: 12px;
+        }
+
+        .logo-badge {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: #a0a5c0;
+            display: inline-block;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ffffff 0%, #a0a5c0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        main {
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* CARD DE MONITOR DE VÍDEO */
+        .video-card {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .video-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            color: #ff4444;
+            letter-spacing: 1px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: #ff4444;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #ff4444;
+            animation: blink 1.2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .ip-bar {
+            display: flex;
+            gap: 8px;
+        }
+
+        .ip-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 8px 12px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
+            text-align: center;
+        }
+
+        .btn-connect {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            padding: 0 16px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .btn-connect:active {
+            transform: scale(0.95);
+        }
+
+        .video-viewport {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000000;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .video-viewport img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(13, 15, 23, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #a0a5c0;
+        }
+
+        /* CONFIGURAÇÃO E BOTÃO DE CORTE */
+        .config-card {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #8a8fa8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .license-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            outline: none;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .btn-trigger {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+            box-shadow: 
+                0 0 40px rgba(255, 68, 68, 0.4),
+                inset 0 4px 10px rgba(255, 255, 255, 0.4),
+                inset 0 -6px 15px rgba(0, 0, 0, 0.4);
+            color: #ffffff;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            position: relative;
+            outline: none;
+            margin-top: 6px;
+        }
+
+        .btn-trigger:active {
+            transform: scale(0.92);
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.6);
+        }
+
+        .btn-icon {
+            font-size: 38px;
+        }
+
+        .btn-text {
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .pulse-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 68, 68, 0.5);
+            animation: pulseRing 2s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes pulseRing {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.3); opacity: 0; }
+        }
+
+        .status-msg {
+            font-size: 13px;
+            font-weight: 600;
+            color: #4CAF50;
+            min-height: 18px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .status-msg.show {
+            opacity: 1;
+        }
+
+        footer {
+            font-size: 11px;
+            color: #5a5f78;
+            text-align: center;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-badge">Controle Remoto + Visor</div>
+        <h1>Meus Recortes 🎬</h1>
+    </header>
+
+    <main>
+        <!-- JANELA DE MONITORAMENTO DE VÍDEO WI-FI -->
+        <div class="video-card">
+            <div class="video-header">
+                <label>Visor da Câmera (Wi-Fi Local)</label>
+                <div class="live-indicator">
+                    <div class="dot"></div>
+                    <span>AO VIVO</span>
+                </div>
+            </div>
+
+            <div class="ip-bar">
+                <input type="text" class="ip-input" id="cameraIp" placeholder="Ex: 192.168.1.50">
+                <button class="btn-connect" onclick="connectStream()">CONECTAR</button>
+            </div>
+
+            <div class="video-viewport">
+                <img id="mjpegStream" src="" alt="" onerror="onStreamError(this)" onload="onStreamLoad()">
+                <div class="video-overlay" id="streamOverlay">
+                    <span id="overlayText">Digite o IP do celular da câmera e clique em CONECTAR</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAVE E BOTÃO DE CORTE -->
+        <div class="config-card">
+            <label for="licenseKey">Chave da Licença</label>
+            <input type="text" class="license-input" id="licenseKey" placeholder="Cole sua chave aqui..." autocomplete="off">
+        </div>
+
+        <button class="btn-trigger" id="btnTrigger" onclick="sendClipCommand()">
+            <div class="pulse-ring"></div>
+            <div class="btn-icon">⚡</div>
+            <div class="btn-text">CORTAR REPLAY</div>
+        </button>
+
+        <div class="status-msg" id="statusMsg">Recorte enviado com sucesso! 🚀</div>
+    </main>
+
+    <footer>
+        Supabase Cloud + MJPEG Streamer • Meus Recortes
+    </footer>
+
+    <script>
+        const SUPABASE_URL = "https://jmlkgxkvlrtpqukgmdqu.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptbGtneGt2bHJ0cHF1a2dtZHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxOTk3NDUsImV4cCI6MjA5OTc3NTc0NX0.mICpFr2gZfUvKmZb_RDqnw3yoswgKeaV2smZkbhb17w";
+
+        const inputKey = document.getElementById('licenseKey');
+        const inputIp = document.getElementById('cameraIp');
+        const statusMsg = document.getElementById('statusMsg');
+        const btnTrigger = document.getElementById('btnTrigger');
+        const mjpegStream = document.getElementById('mjpegStream');
+        const streamOverlay = document.getElementById('streamOverlay');
+        const overlayText = document.getElementById('overlayText');
+
+        // Carregar licença e IP salvos
+        const savedKey = localStorage.getItem('remote_license_key');
+        if (savedKey) inputKey.value = savedKey;
+
+        const savedIp = localStorage.getItem('remote_camera_ip');
+        if (savedIp) {
+            inputIp.value = savedIp;
+            connectStream();
+        }
+
+        inputKey.addEventListener('input', () => {
+            localStorage.setItem('remote_license_key', inputKey.value.trim());
+        });
+
+        function connectStream() {
+            const ip = inputIp.value.trim();
+            if (!ip) return;
+            localStorage.setItem('remote_camera_ip', ip);
+
+            overlayText.textContent = "Conectando ao visor da câmera...";
+            streamOverlay.style.display = "flex";
+
+            mjpegStream.src = `http://${ip}:8080/stream?t=${Date.now()}`;
+        }
+
+        function onStreamLoad() {
+            streamOverlay.style.display = "none";
+        }
+
+        function onStreamError() {
+            streamOverlay.style.display = "flex";
+            overlayText.textContent = "Câmera Offline ou IP Incorreto (Verifique o Wi-Fi)";
+        }
+
+        async function sendClipCommand() {
+            const key = inputKey.value.trim();
+            if (!key) {
+                alert("Por favor, digite sua chave de licença!");
+                inputKey.focus();
+                return;
+            }
+
+            if (navigator.vibrate) {
+                navigator.vibrate(80);
+            }
+
+            try {
+                btnTrigger.style.transform = "scale(0.9)";
+                setTimeout(() => btnTrigger.style.transform = "scale(1)", 150);
+
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/replay_commands`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        license_key: key,
+                        command: 'TRIGGER_CLIP'
+                    })
+                });
+
+                if (response.ok) {
+                    showStatus("Recorte enviado para a Câmera! 🎥✨", "#4CAF50");
+                } else {
+                    showStatus("Erro ao enviar comando. Verifique a chave.", "#ff4444");
+                }
+            } catch (err) {
+                showStatus("Erro de conexão com a rede.", "#ff4444");
+            }
+        }
+
+        function showStatus(text, color) {
+            statusMsg.textContent = text;
+            statusMsg.style.color = color;
+            statusMsg.classList.add('show');
+            setTimeout(() => {
+                statusMsg.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
