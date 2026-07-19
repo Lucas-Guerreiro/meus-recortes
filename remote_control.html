@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meus Recortes - Controle Remoto Duplo + Arcade Mapeável 🎬</title>
+    <title>Meus Recortes - Controle Remoto Duplo + Arcade Universal 🎬</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
@@ -81,8 +81,18 @@
             letter-spacing: 1px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: space-between;
             text-transform: uppercase;
+        }
+
+        .gamepad-status {
+            font-size: 11px;
+            font-weight: 700;
+            color: #ff9800;
+            background: rgba(255, 152, 0, 0.15);
+            padding: 2px 8px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 152, 0, 0.3);
         }
 
         .arcade-grid {
@@ -115,7 +125,7 @@
 
         .arcade-key-badge {
             font-size: 11px;
-            color: #ff9800;
+            color: #4CAF50;
             font-weight: 700;
         }
 
@@ -384,20 +394,23 @@
 <body>
 
     <header>
-        <div class="logo-badge">Mapeador de Botões Arcade + 2 Câmeras</div>
+        <div class="logo-badge">Mapeador Universal USB/Gamepad Arcade</div>
         <h1>Meus Recortes 🎬</h1>
     </header>
 
     <!-- PAINEL DE MAPEAMENTO DOS BOTÕES DE ARCADE FÍSICOS -->
     <div class="arcade-config-panel">
-        <div class="panel-title">🕹️ Configuração dos Botões Físicos de Arcade</div>
+        <div class="panel-title">
+            <span>🕹️ Configuração dos Botões Físicos de Arcade</span>
+            <span class="gamepad-status" id="gamepadStatus">Aguardando Conexão USB/Bluetooth...</span>
+        </div>
         
         <div class="arcade-grid">
             <!-- BOTÃO ARCADE 1 -->
             <div class="arcade-row">
                 <div class="arcade-info">
                     <div class="arcade-name">Botão Arcade 1</div>
-                    <div class="arcade-key-badge" id="btnKeyBadge1">Tecla: Espaço</div>
+                    <div class="arcade-key-badge" id="btnKeyBadge1">Mapeado: Tecla Espaço / Botão #0</div>
                 </div>
                 <div class="arcade-controls">
                     <select id="btnTarget1" onchange="saveArcadeMapping()">
@@ -413,7 +426,7 @@
             <div class="arcade-row">
                 <div class="arcade-info">
                     <div class="arcade-name">Botão Arcade 2</div>
-                    <div class="arcade-key-badge" id="btnKeyBadge2">Tecla: Enter</div>
+                    <div class="arcade-key-badge" id="btnKeyBadge2">Mapeado: Tecla Enter / Botão #1</div>
                 </div>
                 <div class="arcade-controls">
                     <select id="btnTarget2" onchange="saveArcadeMapping()">
@@ -510,7 +523,7 @@
     </div>
 
     <footer>
-        Supabase Cloud Arcade Controller • Meus Recortes
+        Supabase Cloud Universal Arcade HID & Keyboard Controller
     </footer>
 
     <script>
@@ -526,19 +539,21 @@
         const btnKeyBadge2 = document.getElementById('btnKeyBadge2');
         const btnTarget1 = document.getElementById('btnTarget1');
         const btnTarget2 = document.getElementById('btnTarget2');
+        const gamepadStatus = document.getElementById('gamepadStatus');
 
         let mappingTarget = null;
-        let arcadeCode1 = localStorage.getItem('arcade_code_1') || 'Space';
-        let arcadeCode2 = localStorage.getItem('arcade_code_2') || 'Enter';
+        
+        // Mapeamentos armazenados (pode ser Tecla de Teclado ou Índice de Botão da Placa Arcade USB)
+        let arcadeMap1 = JSON.parse(localStorage.getItem('arcade_map_1') || '{"type":"keyboard", "value":"Space", "label":"Tecla Espaço"}');
+        let arcadeMap2 = JSON.parse(localStorage.getItem('arcade_map_2') || '{"type":"keyboard", "value":"Enter", "label":"Tecla Enter"}');
 
-        // Carregar configurações salvas
+        // Carregar licenças e seletores salvos
         if (localStorage.getItem('remote_key_1')) inputKey1.value = localStorage.getItem('remote_key_1');
         if (localStorage.getItem('remote_key_2')) inputKey2.value = localStorage.getItem('remote_key_2');
         if (localStorage.getItem('arcade_target_1')) btnTarget1.value = localStorage.getItem('arcade_target_1');
         if (localStorage.getItem('arcade_target_2')) btnTarget2.value = localStorage.getItem('arcade_target_2');
 
-        btnKeyBadge1.textContent = `Tecla: ${arcadeCode1}`;
-        btnKeyBadge2.textContent = `Tecla: ${arcadeCode2}`;
+        updateBadges();
 
         if (localStorage.getItem('remote_ip_1')) {
             inputIp1.value = localStorage.getItem('remote_ip_1');
@@ -552,6 +567,11 @@
         inputKey1.addEventListener('input', () => localStorage.setItem('remote_key_1', inputKey1.value.trim()));
         inputKey2.addEventListener('input', () => localStorage.setItem('remote_key_2', inputKey2.value.trim()));
 
+        function updateBadges() {
+            btnKeyBadge1.textContent = `Mapeado: ${arcadeMap1.label}`;
+            btnKeyBadge2.textContent = `Mapeado: ${arcadeMap2.label}`;
+        }
+
         function saveArcadeMapping() {
             localStorage.setItem('arcade_target_1', btnTarget1.value);
             localStorage.setItem('arcade_target_2', btnTarget2.value);
@@ -562,6 +582,22 @@
             const btnMap = document.getElementById(`btnMap${btnNum}`);
             btnMap.textContent = "Pressione o Botão...";
             btnMap.classList.add('recording');
+        }
+
+        function finishMapping(type, value, label) {
+            if (mappingTarget === 1) {
+                arcadeMap1 = { type, value, label };
+                localStorage.setItem('arcade_map_1', JSON.stringify(arcadeMap1));
+                document.getElementById('btnMap1').textContent = "🎯 Mapear";
+                document.getElementById('btnMap1').classList.remove('recording');
+            } else if (mappingTarget === 2) {
+                arcadeMap2 = { type, value, label };
+                localStorage.setItem('arcade_map_2', JSON.stringify(arcadeMap2));
+                document.getElementById('btnMap2').textContent = "🎯 Mapear";
+                document.getElementById('btnMap2').classList.remove('recording');
+            }
+            mappingTarget = null;
+            updateBadges();
         }
 
         function connectStream(camNum) {
@@ -670,66 +706,78 @@
             setTimeout(() => msg.classList.remove('show'), 3000);
         }
 
-        /* --- MAPEAMENTO E ESCUTA DOS BOTÕES DE ARCADE FÍSICOS --- */
+        /* --- MAPEAMENTO E ESCUTA DE TECLAS DO TECLADO / TECLADO ARCADE --- */
         document.addEventListener('keydown', (event) => {
             if ([inputKey1, inputKey2, inputIp1, inputIp2].includes(document.activeElement)) return;
 
-            // Se estiver no modo de gravação/mapeamento de novo botão
+            const code = event.code || event.key;
+
             if (mappingTarget !== null) {
                 event.preventDefault();
-                const code = event.code || event.key;
-                if (mappingTarget === 1) {
-                    arcadeCode1 = code;
-                    localStorage.setItem('arcade_code_1', code);
-                    btnKeyBadge1.textContent = `Tecla: ${code}`;
-                    document.getElementById('btnMap1').textContent = "🎯 Mapear";
-                    document.getElementById('btnMap1').classList.remove('recording');
-                } else if (mappingTarget === 2) {
-                    arcadeCode2 = code;
-                    localStorage.setItem('arcade_code_2', code);
-                    btnKeyBadge2.textContent = `Tecla: ${code}`;
-                    document.getElementById('btnMap2').textContent = "🎯 Mapear";
-                    document.getElementById('btnMap2').classList.remove('recording');
-                }
-                mappingTarget = null;
+                finishMapping('keyboard', code, `Tecla: ${code}`);
                 return;
             }
 
-            // Executar comandos de acordo com o mapeamento
-            const currentCode = event.code || event.key;
-            if (currentCode === arcadeCode1 || (arcadeCode1 === 'Space' && event.key === ' ')) {
+            if (arcadeMap1.type === 'keyboard' && (code === arcadeMap1.value || (arcadeMap1.value === 'Space' && event.key === ' '))) {
                 event.preventDefault();
                 triggerByTarget(btnTarget1.value);
-            } else if (currentCode === arcadeCode2) {
+            } else if (arcadeMap2.type === 'keyboard' && (code === arcadeMap2.value || (arcadeMap2.value === 'Space' && event.key === ' '))) {
                 event.preventDefault();
                 triggerByTarget(btnTarget2.value);
             }
         });
 
-        /* --- SUPORTE A CONTROLES / FLIPERAMAS USB (GAMEPAD API) --- */
-        window.addEventListener("gamepadconnected", () => pollGamepad());
-        let lastState = {};
+        /* --- MAPEAMENTO E ESCUTA DAS PLACAS DE ARCADE USB (GAMEPAD HID API) --- */
+        window.addEventListener("gamepadconnected", (e) => {
+            gamepadStatus.textContent = `🕹️ Placa Arcade USB Conectada (${e.gamepad.id.substring(0, 20)}...)`;
+            gamepadStatus.style.color = "#4CAF50";
+            gamepadStatus.style.background = "rgba(76, 175, 80, 0.15)";
+        });
+
+        window.addEventListener("gamepaddisconnected", () => {
+            gamepadStatus.textContent = "Aguardando Conexão USB/Bluetooth...";
+            gamepadStatus.style.color = "#ff9800";
+            gamepadStatus.style.background = "rgba(255, 152, 0, 0.15)";
+        });
+
+        let lastGamepadBtnState = {};
+
         function pollGamepad() {
             const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
-            for (const gp of gamepads) {
-                if (gp) {
-                    if (gp.buttons[0] && gp.buttons[0].pressed && !lastState['b0']) {
-                        lastState['b0'] = true;
-                        triggerByTarget(btnTarget1.value);
-                    } else if (gp.buttons[0] && !gp.buttons[0].pressed) {
-                        lastState['b0'] = false;
-                    }
+            for (let gIndex = 0; gIndex < gamepads.length; gIndex++) {
+                const gp = gamepads[gIndex];
+                if (gp && gp.buttons) {
+                    for (let bIndex = 0; bIndex < gp.buttons.length; bIndex++) {
+                        const isPressed = gp.buttons[bIndex].pressed;
+                        const keyState = `g${gIndex}_b${bIndex}`;
 
-                    if (gp.buttons[1] && gp.buttons[1].pressed && !lastState['b1']) {
-                        lastState['b1'] = true;
-                        triggerByTarget(btnTarget2.value);
-                    } else if (gp.buttons[1] && !gp.buttons[1].pressed) {
-                        lastState['b1'] = false;
+                        if (isPressed && !lastGamepadBtnState[keyState]) {
+                            lastGamepadBtnState[keyState] = true;
+
+                            // Se estivermos em modo de Mapeamento, salva esse botão USB!
+                            if (mappingTarget !== null) {
+                                finishMapping('gamepad', bIndex, `Botão Arcade USB #${bIndex + 1}`);
+                                break;
+                            }
+
+                            // Se estiver em modo de execução normal
+                            if (arcadeMap1.type === 'gamepad' && arcadeMap1.value === bIndex) {
+                                triggerByTarget(btnTarget1.value);
+                            } else if (arcadeMap2.type === 'gamepad' && arcadeMap2.value === bIndex) {
+                                triggerByTarget(btnTarget2.value);
+                            }
+
+                        } else if (!isPressed) {
+                            lastGamepadBtnState[keyState] = false;
+                        }
                     }
                 }
             }
             requestAnimationFrame(pollGamepad);
         }
+
+        // Iniciar monitoramento contínuo da Gamepad API
+        requestAnimationFrame(pollGamepad);
     </script>
 </body>
 </html>
