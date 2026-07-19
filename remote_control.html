@@ -214,6 +214,18 @@
             letter-spacing: 1px;
         }
 
+        .arcade-badge {
+            background: rgba(76, 175, 80, 0.15);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            color: #4CAF50;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 4px;
+            text-align: center;
+        }
+
         .btn-trigger {
             width: 180px;
             height: 180px;
@@ -237,7 +249,7 @@
             margin-top: 6px;
         }
 
-        .btn-trigger:active {
+        .btn-trigger:active, .btn-trigger.active {
             transform: scale(0.92);
             box-shadow: 0 0 20px rgba(255, 68, 68, 0.6);
         }
@@ -293,7 +305,7 @@
 <body>
 
     <header>
-        <div class="logo-badge">Controle Remoto + Visor</div>
+        <div class="logo-badge">Controle Remoto + Arcade</div>
         <h1>Meus Recortes 🎬</h1>
     </header>
 
@@ -325,6 +337,7 @@
         <div class="config-card">
             <label for="licenseKey">Chave da Licença</label>
             <input type="text" class="license-input" id="licenseKey" placeholder="Cole sua chave aqui..." autocomplete="off">
+            <div class="arcade-badge">🕹️ Suporte Ativo: Botões Arcade, Pedais USB, Teclado ou Bluetooth</div>
         </div>
 
         <button class="btn-trigger" id="btnTrigger" onclick="sendClipCommand()">
@@ -337,7 +350,7 @@
     </main>
 
     <footer>
-        Supabase Cloud + MJPEG Streamer • Meus Recortes
+        Supabase Cloud + Arcade Support • Meus Recortes
     </footer>
 
     <script>
@@ -399,8 +412,8 @@
             }
 
             try {
-                btnTrigger.style.transform = "scale(0.9)";
-                setTimeout(() => btnTrigger.style.transform = "scale(1)", 150);
+                btnTrigger.classList.add('active');
+                setTimeout(() => btnTrigger.classList.remove('active'), 150);
 
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/replay_commands`, {
                     method: 'POST',
@@ -433,6 +446,42 @@
             setTimeout(() => {
                 statusMsg.classList.remove('show');
             }, 3000);
+        }
+
+        /* --- SUPORTE A BOTÕES DE ARCADE FÍSICOS & TECLADO --- */
+        document.addEventListener('keydown', (event) => {
+            // Se o usuário não estiver com foco digitando a licença ou IP
+            if (document.activeElement === inputKey || document.activeElement === inputIp) {
+                return;
+            }
+
+            // Qualquer tecla de acionamento (Espaço, Enter, NumpadEnter, etc)
+            if (event.code === 'Space' || event.code === 'Enter' || event.code === 'NumpadEnter' || event.key === ' ') {
+                event.preventDefault();
+                sendClipCommand();
+            }
+        });
+
+        /* --- SUPORTE A CONTROLES / PLACAS DE FLIPERAMA USB (GAMEPAD API) --- */
+        window.addEventListener("gamepadconnected", () => {
+            pollGamepad();
+        });
+
+        let lastGamepadState = false;
+        function pollGamepad() {
+            const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+            for (const gp of gamepads) {
+                if (gp) {
+                    const anyButtonPressed = gp.buttons.some(b => b.pressed);
+                    if (anyButtonPressed && !lastGamepadState) {
+                        lastGamepadState = true;
+                        sendClipCommand();
+                    } else if (!anyButtonPressed) {
+                        lastGamepadState = false;
+                    }
+                }
+            }
+            requestAnimationFrame(pollGamepad);
         }
     </script>
 </body>
