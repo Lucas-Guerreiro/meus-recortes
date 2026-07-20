@@ -972,26 +972,11 @@
             const timeStamp = new Date().toISOString().replace(/[:.-]/g, "_").substring(0, 15);
             const fileName = `REPLAY_${timeStamp}.mp4`;
 
-            // 1. Salvar no Banco Local do Celular (IndexedDB) para a Galeria do App
+            // SALVAMENTO SILENCIOSO NO BANCO LOCAL DO CELULAR (IndexedDB)
             saveReplayToDB(blob, fileName);
+            isProcessingClip = false;
 
-            // 2. Disparar Download Direto no Armazenamento do Celular
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = fileName;
-            a.setAttribute('type', 'video/mp4');
-            document.body.appendChild(a);
-            a.click();
-            
-            setTimeout(() => {
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-                isProcessingClip = false;
-            }, 150);
-
-            msg.textContent = `Vídeo MP4 salvo na Galeria! 🎬💾`;
+            msg.textContent = `Replay salvo na sua Galeria! 📼✨`;
             msg.style.color = "#4CAF50";
             setTimeout(() => msg.classList.remove('show'), 3000);
         }
