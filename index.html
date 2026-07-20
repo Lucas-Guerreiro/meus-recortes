@@ -212,7 +212,6 @@
             transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.12s ease;
         }
 
-        /* ANEL DE PULSO NÉON */
         .pulse-ring-modern {
             position: absolute;
             inset: -8px;
@@ -227,7 +226,6 @@
             100% { transform: scale(1.25); opacity: 0; }
         }
 
-        /* ANIMAÇÃO DE DISPARO / SHOCKWAVE DE SUCESSO DO VÍDEO GERADO */
         .btn-trigger-fullscreen.fired {
             animation: fireShockwave 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             background: radial-gradient(circle at 30% 30%, #10b981, #047857 70%) !important;
@@ -241,7 +239,6 @@
             100% { transform: scale(1); }
         }
 
-        /* FLASH NA TELA QUANDO O VÍDEO É RECORTADO */
         .screen-flash-overlay {
             position: fixed;
             inset: 0;
@@ -552,19 +549,16 @@
 </head>
 <body>
 
-    <!-- OVERLAY DE FLASH NA TELA QUANDO O REPLAY É RECORTADO -->
     <div class="screen-flash-overlay" id="screenFlash"></div>
 
     <button class="toggle-ui-btn" id="btnToggleUI" onclick="toggleUIAndFullscreen()" title="Ocultar/Exibir Controles">👁️</button>
 
-    <!-- TABS DE NAVEGAÇÃO -->
     <div class="mode-tabs" id="modeTabs">
         <button class="tab-btn active" id="tabLocal" onclick="switchTab('local')">📱 CÂMERA FULLSCREEN</button>
         <button class="tab-btn" id="tabGallery" onclick="switchTab('gallery')">📼 REPLAYS SALVOS</button>
         <button class="tab-btn" id="tabRemote" onclick="switchTab('remote')">📡 REMOTO (2 CÂMS)</button>
     </div>
 
-    <!-- MODO 1: GRAVADOR FULLSCREEN DO CELULAR -->
     <div id="sectionLocal" class="fullscreen-cam-container" onclick="handleViewportClick(event)">
         <video id="webCamPreview" autoplay playsinline muted></video>
 
@@ -593,7 +587,6 @@
         <div class="cam-overlay-controls" id="camOverlayControls">
             <button class="btn-cam-control" id="btnToggleCam" onclick="toggleWebCam(event)">📷 LIGAR CÂMERA DO CELULAR</button>
 
-            <!-- DESIGN FUTURISTA COM ANEL NÉON E EFEITO SHOCKWAVE -->
             <button class="btn-trigger-fullscreen" id="btnTriggerLocal" onclick="triggerLocalClip(event)">
                 <div class="pulse-ring-modern"></div>
                 <div style="font-size: 34px;" id="btnIconLocal">⚡</div>
@@ -605,7 +598,6 @@
         </div>
     </div>
 
-    <!-- MODO GALERIA DE REPLAYS SALVOS LOCALMENTE -->
     <div id="sectionGallery" class="gallery-container" style="display: none;">
         <div class="gallery-title">
             <span>📼 Galeria de Replays Salvos no Celular</span>
@@ -617,9 +609,7 @@
         </div>
     </div>
 
-    <!-- MODO CONTROLE REMOTO DUPLO E ARCADE -->
     <div id="sectionRemote" class="remote-mode-container" style="display: none;">
-        
         <div class="arcade-config-panel">
             <div class="panel-title">
                 <span>🕹️ Configuração dos Botões Físicos de Arcade</span>
@@ -985,9 +975,13 @@
                 mediaRecorder = new MediaRecorder(webStream, options);
                 mediaRecorder.ondataavailable = (e) => {
                     if (e.data && e.data.size > 0) {
-                        recordedChunks.push(e.data);
-                        const maxChunks = segAntes + segDepois + 5;
-                        if (recordedChunks.length > maxChunks) {
+                        recordedChunks.push({
+                            data: e.data,
+                            timestamp: Date.now()
+                        });
+                        // Manter o buffer máximo dos últimos 45 segundos para economizar memória
+                        const cutoff = Date.now() - 45000;
+                        while (recordedChunks.length > 0 && recordedChunks[0].timestamp < cutoff) {
                             recordedChunks.shift();
                         }
                     }
@@ -1012,13 +1006,17 @@
             isProcessingClip = true;
             btn.classList.add('active');
 
+            const clickTimestamp = Date.now();
+            const targetStartTime = clickTimestamp - (segAntes * 1000);
+            const targetEndTime = clickTimestamp + (segDepois * 1000);
+
             msg.textContent = `Aguardando ${segDepois}s posteriores... ⏱️`;
             msg.style.color = "#ff9800";
             msg.classList.add('show');
 
+            // Aguarda exatamente a passagem dos segundos posteriores configurados
             await new Promise(r => setTimeout(r, segDepois * 1000));
 
-            // EFEITO DE FLASH NÉON DE DISPARO DE SUCESSO
             btn.classList.remove('active');
             btn.classList.add('fired');
             btnIcon.textContent = '🎬';
@@ -1027,17 +1025,20 @@
             screenFlash.classList.add('flash');
             setTimeout(() => screenFlash.classList.remove('flash'), 300);
 
-            const totalRequired = segAntes + segDepois;
-            const chunksToSave = recordedChunks.slice(-totalRequired);
+            // Filtrar estritamente apenas os chunks compreendidos na janela [targetStartTime, targetEndTime]
+            const exactChunks = recordedChunks
+                .filter(item => item.timestamp >= targetStartTime - 1500 && item.timestamp <= targetEndTime + 1500)
+                .map(item => item.data);
 
-            const blob = new Blob(chunksToSave, { type: 'video/mp4' });
+            const finalChunks = exactChunks.length > 0 ? exactChunks : recordedChunks.slice(-(segAntes + segDepois)).map(item => item.data);
+
+            const blob = new Blob(finalChunks, { type: 'video/mp4' });
             const timeStamp = new Date().toISOString().replace(/[:.-]/g, "_").substring(0, 15);
             const fileName = `REPLAY_${timeStamp}.mp4`;
 
-            // SALVAMENTO SILENCIOSO NO BANCO LOCAL DO CELULAR (IndexedDB)
             saveReplayToDB(blob, fileName);
 
-            msg.textContent = `Replay MP4 gerado com sucesso! 📼✨`;
+            msg.textContent = `Vídeo de ${segAntes + segDepois}s salvo na Galeria! 📼✨`;
             msg.style.color = "#10b981";
 
             setTimeout(() => {
