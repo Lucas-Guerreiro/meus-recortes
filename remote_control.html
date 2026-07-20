@@ -190,20 +190,11 @@
             gap: 8px;
         }
 
-        .arcade-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
+        .arcade-info { display: flex; flex-direction: column; gap: 2px; }
         .arcade-name { font-size: 13px; font-weight: 800; }
         .arcade-key-badge { font-size: 11px; color: #4CAF50; font-weight: 700; }
 
-        .arcade-controls {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
+        .arcade-controls { display: flex; gap: 6px; align-items: center; }
 
         select {
             background: #181b28;
@@ -228,17 +219,9 @@
             cursor: pointer;
         }
 
-        .btn-map:active, .btn-map.recording {
-            background: #4CAF50;
-            color: #000;
-        }
+        .btn-map:active, .btn-map.recording { background: #4CAF50; color: #000; }
 
-        /* BOTÃO MESTRE AMBAS AS CÂMERAS */
-        .master-bar {
-            width: 100%;
-            max-width: 900px;
-            margin-bottom: 16px;
-        }
+        .master-bar { width: 100%; max-width: 900px; margin-bottom: 16px; }
 
         .btn-master {
             width: 100%;
@@ -260,7 +243,6 @@
 
         .btn-master:active, .btn-master.active { transform: scale(0.97); }
 
-        /* GRID DAS DUAS CÂMERAS REMOTAS */
         .cameras-grid {
             width: 100%;
             max-width: 900px;
@@ -282,41 +264,13 @@
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
         }
 
-        .card-header {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .camera-title {
-            font-size: 14px;
-            font-weight: 900;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
+        .card-header { width: 100%; display: flex; align-items: center; justify-content: space-between; }
+        .camera-title { font-size: 14px; font-weight: 900; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
         .title-cam1 { color: #ff4444; }
         .title-cam2 { color: #2196F3; }
 
-        .live-indicator {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 10px;
-            font-weight: 800;
-            color: #4CAF50;
-        }
-
-        .dot {
-            width: 6px;
-            height: 6px;
-            background-color: #4CAF50;
-            border-radius: 50%;
-            box-shadow: 0 0 6px #4CAF50;
-        }
+        .live-indicator { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 800; color: #4CAF50; }
+        .dot { width: 6px; height: 6px; background-color: #4CAF50; border-radius: 50%; box-shadow: 0 0 6px #4CAF50; }
 
         .video-viewport {
             width: 100%;
@@ -347,20 +301,8 @@
             color: #a0a5c0;
         }
 
-        .input-group {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        label {
-            font-size: 10px;
-            font-weight: 600;
-            color: #8a8fa8;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        .input-group { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+        label { font-size: 10px; font-weight: 600; color: #8a8fa8; text-transform: uppercase; letter-spacing: 1px; }
 
         input {
             width: 100%;
@@ -376,7 +318,6 @@
         }
 
         .ip-row { display: flex; gap: 6px; }
-
         .btn-connect {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -405,16 +346,8 @@
             margin-top: 8px;
         }
 
-        .btn-cam1 {
-            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
-            box-shadow: 0 0 30px rgba(255, 68, 68, 0.4);
-        }
-
-        .btn-cam2 {
-            background: linear-gradient(135deg, #2196F3 0%, #1565C0 100%);
-            box-shadow: 0 0 30px rgba(33, 150, 243, 0.4);
-        }
-
+        .btn-cam1 { background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%); box-shadow: 0 0 30px rgba(255, 68, 68, 0.4); }
+        .btn-cam2 { background: linear-gradient(135deg, #2196F3 0%, #1565C0 100%); box-shadow: 0 0 30px rgba(33, 150, 243, 0.4); }
         .btn-trigger:active, .btn-trigger.active { transform: scale(0.92); }
 
         .btn-icon { font-size: 30px; }
@@ -431,31 +364,26 @@
 
         .status-msg.show { opacity: 1; }
 
-        footer {
-            font-size: 11px;
-            color: #5a5f78;
-            text-align: center;
-            margin-top: 24px;
-        }
+        footer { font-size: 11px; color: #5a5f78; text-align: center; margin-top: 24px; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo-badge">Gravador Web + Controle Remoto</div>
+        <div class="logo-badge">Gravador Web MP4 + Controle Remoto</div>
         <h1>Meus Recortes 🎬</h1>
     </header>
 
     <!-- TABS DE NAVEGAÇÃO ENTRE MODOS -->
     <div class="mode-tabs">
-        <button class="tab-btn active" id="tabLocal" onclick="switchTab('local')">📱 GRAVAR NESTE CELULAR</button>
+        <button class="tab-btn active" id="tabLocal" onclick="switchTab('local')">📱 GRAVAR NESTE CELULAR (MP4)</button>
         <button class="tab-btn" id="tabRemote" onclick="switchTab('remote')">📡 CONTROLE REMOTO (2 CÂMERAS)</button>
     </div>
 
-    <!-- MODO 1: GRAVADOR DE CÂMERA DO PRÓPRIO CELULAR (LOCAL) -->
+    <!-- MODO 1: GRAVADOR DE CÂMERA DO PRÓPRIO CELULAR (LOCAL MP4) -->
     <div id="sectionLocal" class="local-cam-card">
         <div class="card-header">
-            <div class="camera-title title-cam1">🎥 CÂMERA DO SEU CELULAR</div>
+            <div class="camera-title title-cam1">🎥 CÂMERA DO SEU CELULAR (MP4)</div>
             <div class="live-indicator"><div class="dot"></div><span id="localStatusText">DESLIGADA</span></div>
         </div>
 
@@ -470,7 +398,7 @@
         <button class="btn-trigger btn-cam1" id="btnTriggerLocal" onclick="triggerLocalClip()" style="width: 160px; height: 160px;">
             <div class="btn-icon">⚡</div>
             <div class="btn-text">CORTAR REPLAY</div>
-            <div style="font-size: 10px; opacity: 0.8;">(Salva no celular)</div>
+            <div style="font-size: 10px; opacity: 0.8;">(Baixa Vídeo MP4)</div>
         </button>
 
         <div class="status-msg" id="statusMsgLocal"></div>
@@ -495,7 +423,7 @@
                     </div>
                     <div class="arcade-controls">
                         <select id="btnTarget1" onchange="saveArcadeMapping()">
-                            <option value="local">Câmera deste Celular</option>
+                            <option value="local">Câmera deste Celular (MP4)</option>
                             <option value="1">Câmera 1 (Lado A)</option>
                             <option value="2">Câmera 2 (Lado B)</option>
                             <option value="both">Ambas as Remotas</option>
@@ -512,7 +440,7 @@
                     </div>
                     <div class="arcade-controls">
                         <select id="btnTarget2" onchange="saveArcadeMapping()">
-                            <option value="local">Câmera deste Celular</option>
+                            <option value="local">Câmera deste Celular (MP4)</option>
                             <option value="1">Câmera 1 (Lado A)</option>
                             <option value="2" selected>Câmera 2 (Lado B)</option>
                             <option value="both">Ambas as Remotas</option>
@@ -607,7 +535,7 @@
     </div>
 
     <footer>
-        Supabase Cloud Web Camera & Arcade Controller • Meus Recortes
+        Supabase Cloud Web Camera & MP4 Arcade Controller • Meus Recortes
     </footer>
 
     <script>
@@ -629,11 +557,12 @@
         let arcadeMap1 = JSON.parse(localStorage.getItem('arcade_map_1') || '{"type":"keyboard", "value":"Space", "label":"Tecla Espaço"}');
         let arcadeMap2 = JSON.parse(localStorage.getItem('arcade_map_2') || '{"type":"keyboard", "value":"Enter", "label":"Tecla Enter"}');
 
-        // VARIÁVEIS DA CÂMERA WEB LOCAL DO PRÓPRIO CELULAR
+        // VARIÁVEIS DA CÂMERA WEB LOCAL MP4
         let webStream = null;
         let mediaRecorder = null;
         let recordedChunks = [];
         let isCamActive = false;
+        let selectedMimeType = "video/mp4";
 
         function switchTab(mode) {
             const tabLocal = document.getElementById('tabLocal');
@@ -662,14 +591,14 @@
             if (!isCamActive) {
                 try {
                     webStream = await navigator.mediaDevices.getUserMedia({
-                        video: { facingMode: "environment" },
+                        video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
                         audio: true
                     });
                     videoElem.srcObject = webStream;
                     isCamActive = true;
                     btnToggle.textContent = "🛑 DESLIGAR CÂMERA DO CELULAR";
                     btnToggle.style.background = "#ff4444";
-                    statusText.textContent = "GRAVANDO BUFFER LOCAL";
+                    statusText.textContent = "GRAVANDO BUFFER MP4";
                     statusText.style.color = "#ff4444";
 
                     startBufferRecorder();
@@ -692,27 +621,48 @@
             }
         }
 
+        function getSupportedMp4MimeType() {
+            const types = [
+                'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
+                'video/mp4;codecs=h264,aac',
+                'video/mp4',
+                'video/webm;codecs=h264'
+            ];
+            for (let t of types) {
+                if (MediaRecorder.isTypeSupported(t)) return t;
+            }
+            return 'video/mp4';
+        }
+
         function startBufferRecorder() {
             recordedChunks = [];
-            let options = { mimeType: 'video/webm;codecs=vp9,opus' };
-            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                options = { mimeType: 'video/mp4' };
-            }
+            selectedMimeType = getSupportedMp4MimeType();
 
             try {
-                mediaRecorder = new MediaRecorder(webStream);
+                mediaRecorder = new MediaRecorder(webStream, { mimeType: selectedMimeType });
                 mediaRecorder.ondataavailable = (e) => {
-                    if (e.data.size > 0) {
+                    if (e.data && e.data.size > 0) {
                         recordedChunks.push(e.data);
-                        // Manter apenas os últimos 15 chunks (aprox. 15 segundos em buffer)
                         if (recordedChunks.length > 15) {
                             recordedChunks.shift();
                         }
                     }
                 };
-                mediaRecorder.start(1000); // 1 segundo por chunk
+                mediaRecorder.start(1000);
             } catch (err) {
-                console.error("Erro no MediaRecorder:", err);
+                // Fallback padrao
+                try {
+                    mediaRecorder = new MediaRecorder(webStream);
+                    mediaRecorder.ondataavailable = (e) => {
+                        if (e.data && e.data.size > 0) {
+                            recordedChunks.push(e.data);
+                            if (recordedChunks.length > 15) recordedChunks.shift();
+                        }
+                    };
+                    mediaRecorder.start(1000);
+                } catch (e2) {
+                    console.error("Erro no MediaRecorder:", e2);
+                }
             }
         }
 
@@ -730,20 +680,26 @@
             btn.classList.add('active');
             setTimeout(() => btn.classList.remove('active'), 150);
 
-            const blob = new Blob(recordedChunks, { type: recordedChunks[0].type || 'video/mp4' });
+            // Forçar container MP4 de alta compatibilidade
+            const blob = new Blob(recordedChunks, { type: 'video/mp4' });
             const url = URL.createObjectURL(blob);
+            
+            const timeStamp = new Date().toISOString().replace(/[:.-]/g, "_").substring(0, 15);
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = url;
-            a.download = `REPLAY_${Date.now()}.mp4`;
+            a.download = `REPLAY_${timeStamp}.mp4`;
+            a.setAttribute('type', 'video/mp4');
+            
             document.body.appendChild(a);
             a.click();
+            
             setTimeout(() => {
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
-            }, 100);
+            }, 150);
 
-            msg.textContent = "Recorte salvo no seu celular! 💾✨";
+            msg.textContent = "Recorte MP4 salvo com sucesso! 🎬💾";
             msg.style.color = "#4CAF50";
             msg.classList.add('show');
             setTimeout(() => msg.classList.remove('show'), 3000);
