@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Meus Recortes - Câmera Fullscreen & Controle 🎬</title>
+    <title>Meus Recortes - Câmera Fullscreen & Imersiva 🎬</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
@@ -23,38 +23,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
-        /* HEADER FIXO TOPO */
-        header {
-            position: absolute;
-            top: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 50;
-            text-align: center;
-            pointer-events: none;
-        }
-
-        .logo-badge {
-            background: rgba(13, 15, 23, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 4px 14px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            color: #a0a5c0;
-            display: inline-block;
-            text-transform: uppercase;
-        }
-
-        /* TABS DE MODO */
+        /* TABS DE MODO (SOBREPOSTAS) */
         .mode-tabs {
             position: fixed;
-            top: 48px;
+            top: 12px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 50;
@@ -62,6 +37,13 @@
             gap: 6px;
             width: 92%;
             max-width: 440px;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .mode-tabs.hidden-ui {
+            opacity: 0;
+            pointer-events: none;
+            transform: translate(-50%, -20px);
         }
 
         .tab-btn {
@@ -85,7 +67,7 @@
             box-shadow: 0 0 20px rgba(255, 68, 68, 0.4);
         }
 
-        /* MODO CÂMERA FULLSCREEN (TELA CHEIA) */
+        /* MODO CÂMERA FULLSCREEN (TELA CHEIA ABSOLUTA) */
         .fullscreen-cam-container {
             position: fixed;
             inset: 0;
@@ -105,10 +87,31 @@
             object-fit: cover;
         }
 
+        /* BOTÃO FLUTUANTE DE ALTERNAR INTERFACE (OLHO) */
+        .toggle-ui-btn {
+            position: fixed;
+            top: 60px;
+            right: 16px;
+            z-index: 60;
+            background: rgba(13, 15, 23, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
         /* PAINEL FLUTUANTE DE CONFIGURAÇÃO DE TEMPO NA CÂMERA */
         .cam-time-config {
             position: absolute;
-            top: 100px;
+            top: 70px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 30;
@@ -116,11 +119,18 @@
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 16px;
-            padding: 10px 16px;
+            padding: 8px 14px;
             display: flex;
-            gap: 16px;
+            gap: 12px;
             align-items: center;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .cam-time-config.hidden-ui {
+            opacity: 0;
+            pointer-events: none;
+            transform: translate(-50%, -20px);
         }
 
         .time-box {
@@ -144,7 +154,7 @@
             color: #fff;
             padding: 4px 8px;
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 800;
             outline: none;
         }
@@ -159,9 +169,16 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             width: 90%;
             max-width: 380px;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .cam-overlay-controls.hidden-ui {
+            opacity: 0;
+            pointer-events: none;
+            transform: translate(-50%, 20px);
         }
 
         .btn-cam-control {
@@ -169,7 +186,7 @@
             border: none;
             border-radius: 14px;
             color: #fff;
-            padding: 12px 24px;
+            padding: 10px 20px;
             font-size: 13px;
             font-weight: 800;
             cursor: pointer;
@@ -178,8 +195,8 @@
         }
 
         .btn-trigger-fullscreen {
-            width: 140px;
-            height: 140px;
+            width: 130px;
+            height: 130px;
             border-radius: 50%;
             border: 4px solid rgba(255, 255, 255, 0.3);
             background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
@@ -195,15 +212,13 @@
             outline: none;
         }
 
-        .btn-trigger-fullscreen:active, .btn-trigger-fullscreen.active {
-            transform: scale(0.92);
-        }
+        .btn-trigger-fullscreen:active, .btn-trigger-fullscreen.active { transform: scale(0.92); }
 
         .status-msg {
             font-size: 13px;
             font-weight: 700;
             color: #4CAF50;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.85);
             padding: 6px 16px;
             border-radius: 20px;
             min-height: 20px;
@@ -220,11 +235,13 @@
         .remote-mode-container {
             width: 100%;
             max-width: 900px;
-            margin-top: 100px;
+            margin-top: 70px;
             padding: 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            overflow-y: auto;
+            max-height: calc(100vh - 80px);
         }
 
         .arcade-config-panel {
@@ -420,22 +437,21 @@
 </head>
 <body>
 
-    <header>
-        <div class="logo-badge">Câmera Fullscreen + Arcade Controller</div>
-    </header>
+    <!-- BOTÃO FLUTUANTE DE OLHO PARA OCULTAR/MOSTRAR INTERFACE E ATIVAR FULLSCREEN NATIVO -->
+    <button class="toggle-ui-btn" id="btnToggleUI" onclick="toggleUIAndFullscreen()" title="Ocultar/Exibir Controles">👁️</button>
 
     <!-- TABS DE NAVEGAÇÃO -->
-    <div class="mode-tabs">
+    <div class="mode-tabs" id="modeTabs">
         <button class="tab-btn active" id="tabLocal" onclick="switchTab('local')">📱 CÂMERA FULLSCREEN (MP4)</button>
         <button class="tab-btn" id="tabRemote" onclick="switchTab('remote')">📡 CONTROLE REMOTO DUPLO</button>
     </div>
 
     <!-- MODO 1: GRAVADOR FULLSCREEN DO CELULAR -->
-    <div id="sectionLocal" class="fullscreen-cam-container">
+    <div id="sectionLocal" class="fullscreen-cam-container" onclick="handleViewportClick(event)">
         <video id="webCamPreview" autoplay playsinline muted></video>
 
         <!-- SELETOR DE TEMPOS ANTES E DEPOIS -->
-        <div class="cam-time-config">
+        <div class="cam-time-config" id="camTimeConfig">
             <div class="time-box">
                 <label>⏱️ ANTES DO CLIQUE</label>
                 <select id="timeAntes" onchange="updateTimeConfig()">
@@ -458,10 +474,10 @@
         </div>
 
         <!-- CONTROLES FLUTUANTES SOBRE O VÍDEO FULLSCREEN -->
-        <div class="cam-overlay-controls">
-            <button class="btn-cam-control" id="btnToggleCam" onclick="toggleWebCam()">📷 LIGAR CÂMERA DO CELULAR</button>
+        <div class="cam-overlay-controls" id="camOverlayControls">
+            <button class="btn-cam-control" id="btnToggleCam" onclick="toggleWebCam(event)">📷 LIGAR CÂMERA DO CELULAR</button>
 
-            <button class="btn-trigger-fullscreen" id="btnTriggerLocal" onclick="triggerLocalClip()">
+            <button class="btn-trigger-fullscreen" id="btnTriggerLocal" onclick="triggerLocalClip(event)">
                 <div style="font-size: 32px;">⚡</div>
                 <div style="font-size: 14px; font-weight: 900; letter-spacing: 1px;">CORTAR REPLAY</div>
                 <div style="font-size: 9px; opacity: 0.8;" id="clipInfoText">10s Antes / 5s Depois</div>
@@ -607,6 +623,7 @@
         const btnTarget2 = document.getElementById('btnTarget2');
         const gamepadStatus = document.getElementById('gamepadStatus');
 
+        let isUiVisible = true;
         let mappingTarget = null;
         let arcadeMap1 = JSON.parse(localStorage.getItem('arcade_map_1') || '{"type":"keyboard", "value":"Space", "label":"Tecla Espaço"}');
         let arcadeMap2 = JSON.parse(localStorage.getItem('arcade_map_2') || '{"type":"keyboard", "value":"Enter", "label":"Tecla Enter"}');
@@ -623,6 +640,46 @@
         selectAntes.value = segAntes.toString();
         selectDepois.value = segDepois.toString();
         updateTimeText();
+
+        function toggleUIAndFullscreen() {
+            isUiVisible = !isUiVisible;
+            const modeTabs = document.getElementById('modeTabs');
+            const camTimeConfig = document.getElementById('camTimeConfig');
+            const camOverlayControls = document.getElementById('camOverlayControls');
+            const btnToggleUI = document.getElementById('btnToggleUI');
+
+            if (!isUiVisible) {
+                modeTabs.classList.add('hidden-ui');
+                camTimeConfig.classList.add('hidden-ui');
+                camOverlayControls.classList.add('hidden-ui');
+                btnToggleUI.textContent = '👁️‍🗨️';
+                
+                // Ativar Fullscreen do Navegador se disponível
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen().catch(() => {});
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                }
+            } else {
+                modeTabs.classList.remove('hidden-ui');
+                camTimeConfig.classList.remove('hidden-ui');
+                camOverlayControls.classList.remove('hidden-ui');
+                btnToggleUI.textContent = '👁️';
+
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().catch(() => {});
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            }
+        }
+
+        function handleViewportClick(e) {
+            // Se o usuário clicar no meio da tela (fora dos botões), alterna os controles
+            if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'SELECT') {
+                toggleUIAndFullscreen();
+            }
+        }
 
         function updateTimeConfig() {
             segAntes = parseInt(selectAntes.value);
@@ -655,7 +712,8 @@
             }
         }
 
-        async function toggleWebCam() {
+        async function toggleWebCam(e) {
+            if (e) e.stopPropagation();
             const videoElem = document.getElementById('webCamPreview');
             const btnToggle = document.getElementById('btnToggleCam');
 
@@ -694,20 +752,20 @@
                 mediaRecorder.ondataavailable = (e) => {
                     if (e.data && e.data.size > 0) {
                         recordedChunks.push(e.data);
-                        // Manter o buffer suficiente para cobrir (segAntes + segDepois + 5s de segurança)
                         const maxChunks = segAntes + segDepois + 5;
                         if (recordedChunks.length > maxChunks) {
                             recordedChunks.shift();
                         }
                     }
                 };
-                mediaRecorder.start(1000); // 1 chunk por segundo
+                mediaRecorder.start(1000);
             } catch (e) {
                 console.error("Erro MediaRecorder:", e);
             }
         }
 
-        async function triggerLocalClip() {
+        async function triggerLocalClip(e) {
+            if (e) e.stopPropagation();
             const btn = document.getElementById('btnTriggerLocal');
             const msg = document.getElementById('statusMsgLocal');
 
@@ -718,7 +776,6 @@
             isProcessingClip = true;
             btn.classList.add('active');
 
-            // Aguardar os segundos posteriores configurados
             msg.textContent = `Aguardando ${segDepois}s posteriores... ⏱️`;
             msg.style.color = "#ff9800";
             msg.classList.add('show');
@@ -727,7 +784,6 @@
 
             btn.classList.remove('active');
 
-            // Recortar exatamente os chunks do período (segAntes + segDepois)
             const totalRequired = segAntes + segDepois;
             const chunksToSave = recordedChunks.slice(-totalRequired);
 
@@ -755,7 +811,6 @@
             setTimeout(() => msg.classList.remove('show'), 3000);
         }
 
-        // Carregar licenças e seletores salvos
         if (localStorage.getItem('remote_key_1')) inputKey1.value = localStorage.getItem('remote_key_1');
         if (localStorage.getItem('remote_key_2')) inputKey2.value = localStorage.getItem('remote_key_2');
         if (localStorage.getItem('arcade_target_1')) btnTarget1.value = localStorage.getItem('arcade_target_1');
