@@ -26,7 +26,6 @@
             overflow-x: hidden;
         }
 
-        /* TABS DE MODO (SOBREPOSTAS) */
         .mode-tabs {
             position: fixed;
             top: 12px;
@@ -67,7 +66,6 @@
             box-shadow: 0 0 20px rgba(255, 42, 42, 0.4);
         }
 
-        /* MODO CÂMERA FULLSCREEN */
         .fullscreen-cam-container {
             position: fixed;
             inset: 0;
@@ -189,7 +187,6 @@
             box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
         }
 
-        /* DESIGN MODERNO DO BOTÃO DE DISPARO FUTURISTA */
         .btn-trigger-fullscreen {
             width: 145px;
             height: 145px;
@@ -944,7 +941,7 @@
             if (!isCamActive) {
                 try {
                     webStream = await navigator.mediaDevices.getUserMedia({
-                        video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } },
+                        video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
                         audio: true
                     });
                     videoElem.srcObject = webStream;
@@ -968,25 +965,22 @@
 
         function startBufferRecorder() {
             recordedChunks = [];
-            let options = { mimeType: 'video/mp4' };
-            if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm' };
+            let options = { mimeType: 'video/webm' };
+            if (MediaRecorder.isTypeSupported('video/mp4')) options = { mimeType: 'video/mp4' };
 
             try {
                 mediaRecorder = new MediaRecorder(webStream, options);
                 mediaRecorder.ondataavailable = (e) => {
                     if (e.data && e.data.size > 0) {
-                        recordedChunks.push({
-                            data: e.data,
-                            timestamp: Date.now()
-                        });
-                        // Manter o buffer máximo dos últimos 45 segundos para economizar memória
-                        const cutoff = Date.now() - 45000;
-                        while (recordedChunks.length > 0 && recordedChunks[0].timestamp < cutoff) {
+                        recordedChunks.push(e.data);
+                        // Limita o buffer em memória exatamente aos últimos (segAntes + segDepois + 2) segundos
+                        const maxAllowed = segAntes + segDepois + 2;
+                        while (recordedChunks.length > maxAllowed) {
                             recordedChunks.shift();
                         }
                     }
                 };
-                mediaRecorder.start(1000);
+                mediaRecorder.start(1000); // Chunks de 1 segundo
             } catch (e) {
                 console.error("Erro MediaRecorder:", e);
             }
@@ -1006,15 +1000,11 @@
             isProcessingClip = true;
             btn.classList.add('active');
 
-            const clickTimestamp = Date.now();
-            const targetStartTime = clickTimestamp - (segAntes * 1000);
-            const targetEndTime = clickTimestamp + (segDepois * 1000);
-
             msg.textContent = `Aguardando ${segDepois}s posteriores... ⏱️`;
             msg.style.color = "#ff9800";
             msg.classList.add('show');
 
-            // Aguarda exatamente a passagem dos segundos posteriores configurados
+            // Aguarda exatamente os segundos posteriores configurados
             await new Promise(r => setTimeout(r, segDepois * 1000));
 
             btn.classList.remove('active');
@@ -1025,20 +1015,18 @@
             screenFlash.classList.add('flash');
             setTimeout(() => screenFlash.classList.remove('flash'), 300);
 
-            // Filtrar estritamente apenas os chunks compreendidos na janela [targetStartTime, targetEndTime]
-            const exactChunks = recordedChunks
-                .filter(item => item.timestamp >= targetStartTime - 1500 && item.timestamp <= targetEndTime + 1500)
-                .map(item => item.data);
+            // Resgatar os chunks exatamente da duração do tempo selecionado (segAntes + segDepois)
+            const requiredCount = segAntes + segDepois;
+            const finalChunks = recordedChunks.slice(-requiredCount);
 
-            const finalChunks = exactChunks.length > 0 ? exactChunks : recordedChunks.slice(-(segAntes + segDepois)).map(item => item.data);
-
-            const blob = new Blob(finalChunks, { type: 'video/mp4' });
+            const mime = (mediaRecorder && mediaRecorder.mimeType) ? mediaRecorder.mimeType : 'video/mp4';
+            const blob = new Blob(finalChunks, { type: mime });
             const timeStamp = new Date().toISOString().replace(/[:.-]/g, "_").substring(0, 15);
             const fileName = `REPLAY_${timeStamp}.mp4`;
 
             saveReplayToDB(blob, fileName);
 
-            msg.textContent = `Vídeo de ${segAntes + segDepois}s salvo na Galeria! 📼✨`;
+            msg.textContent = `Vídeo de ${finalChunks.length}s salvo na Galeria! 📼✨`;
             msg.style.color = "#10b981";
 
             setTimeout(() => {
