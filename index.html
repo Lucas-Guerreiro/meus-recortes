@@ -26,7 +26,6 @@
             overflow-x: hidden;
         }
 
-        /* TABS DE MODO ULTRA MODERNAS COM NÉON E GLASSMORPHISM */
         .mode-tabs {
             position: fixed;
             top: 12px;
@@ -77,7 +76,6 @@
             box-shadow: 0 4px 20px rgba(255, 42, 42, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
         }
 
-        /* MODO CÂMERA FULLSCREEN */
         .fullscreen-cam-container {
             position: fixed;
             inset: 0;
@@ -280,7 +278,6 @@
 
         .status-msg.show { opacity: 1; }
 
-        /* CARDS DE GALERIA E CONTROLE REMOTO ULTRA ELEGANTES */
         .gallery-container {
             width: 100%;
             max-width: 900px;
@@ -563,7 +560,6 @@
 
     <button class="toggle-ui-btn" id="btnToggleUI" onclick="toggleUIAndFullscreen()" title="Ocultar/Exibir Controles">👁️</button>
 
-    <!-- TABS PREMIUM GLASSMORPHISM -->
     <div class="mode-tabs" id="modeTabs">
         <button class="tab-btn active" id="tabLocal" onclick="switchTab('local')">📱 CÂMERA FULLSCREEN</button>
         <button class="tab-btn" id="tabGallery" onclick="switchTab('gallery')">📼 REPLAYS SALVOS</button>
@@ -762,7 +758,8 @@
 
         let webStream = null;
         let mediaRecorder = null;
-        let recordedChunks = [];
+        let recordedChunks = []; // Guardará objetos { data: Blob, timestamp: number }
+        let initHeaderChunk = null; // Guardará o primeiro chunk vital que contém os cabeçalhos
         let isCamActive = false;
         let isProcessingClip = false;
 
@@ -979,6 +976,7 @@
 
         function startBufferRecorder() {
             recordedChunks = [];
+            initHeaderChunk = null;
             let options = { mimeType: 'video/webm' };
             if (MediaRecorder.isTypeSupported('video/mp4')) options = { mimeType: 'video/mp4' };
 
@@ -986,14 +984,26 @@
                 mediaRecorder = new MediaRecorder(webStream, options);
                 mediaRecorder.ondataavailable = (e) => {
                     if (e.data && e.data.size > 0) {
-                        recordedChunks.push(e.data);
-                        const maxAllowed = segAntes + segDepois + 2;
-                        while (recordedChunks.length > maxAllowed) {
+                        const now = Date.now();
+                        
+                        // Guardar o primeiríssimo chunk que contém os cabeçalhos de vídeo
+                        if (!initHeaderChunk) {
+                            initHeaderChunk = e.data;
+                        }
+                        
+                        recordedChunks.push({
+                            data: e.data,
+                            timestamp: now
+                        });
+                        
+                        // Manter o buffer máximo de 45 segundos para economizar memória e evitar lixo antigo
+                        const cutoff = now - 45000;
+                        while (recordedChunks.length > 0 && recordedChunks[0].timestamp < cutoff) {
                             recordedChunks.shift();
                         }
                     }
                 };
-                mediaRecorder.start(1000);
+                mediaRecorder.start(1000); // Gerar chunks a cada 1 segundo
             } catch (e) {
                 console.error("Erro MediaRecorder:", e);
             }
@@ -1013,11 +1023,17 @@
             isProcessingClip = true;
             btn.classList.add('active');
 
+            const clickTime = Date.now();
+            const startTime = clickTime - (segAntes * 1000);
+
             msg.textContent = `Aguardando ${segDepois}s posteriores... ⏱️`;
             msg.style.color = "#ff9800";
             msg.classList.add('show');
 
+            // Aguarda rigorosamente a passagem do tempo posterior
             await new Promise(r => setTimeout(r, segDepois * 1000));
+
+            const endTime = Date.now();
 
             btn.classList.remove('active');
             btn.classList.add('fired');
@@ -1027,17 +1043,29 @@
             screenFlash.classList.add('flash');
             setTimeout(() => screenFlash.classList.remove('flash'), 300);
 
-            const requiredCount = segAntes + segDepois;
-            const finalChunks = recordedChunks.slice(-requiredCount);
+            // Filtrar chunks gerados estritamente na janela temporal [startTime, endTime]
+            const chunksFiltrados = recordedChunks.filter(c => c.timestamp >= startTime && c.timestamp <= endTime);
+
+            // Montar a lista final contendo o Header de Inicialização e os chunks da janela selecionada
+            const finalBlobs = [];
+            if (initHeaderChunk) {
+                finalBlobs.push(initHeaderChunk);
+            }
+            chunksFiltrados.forEach(c => {
+                if (c.data !== initHeaderChunk) {
+                    finalBlobs.push(c.data);
+                }
+            });
 
             const mime = (mediaRecorder && mediaRecorder.mimeType) ? mediaRecorder.mimeType : 'video/mp4';
-            const blob = new Blob(finalChunks, { type: mime });
+            const blob = new Blob(finalBlobs, { type: mime });
             const timeStamp = new Date().toISOString().replace(/[:.-]/g, "_").substring(0, 15);
             const fileName = `REPLAY_${timeStamp}.mp4`;
 
             saveReplayToDB(blob, fileName);
 
-            msg.textContent = `Vídeo de ${finalChunks.length}s salvo na Galeria! 📼✨`;
+            const duracaoReal = Math.round((endTime - startTime) / 1000);
+            msg.textContent = `Vídeo de ${duracaoReal}s salvo na Galeria! 📼✨`;
             msg.style.color = "#10b981";
 
             setTimeout(() => {
