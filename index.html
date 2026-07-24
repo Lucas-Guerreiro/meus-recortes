@@ -882,11 +882,27 @@
         selectDepois.value = segDepois.toString();
         updateTimeText();
 
-        /* --- CONTROLE DE ACESSO POR LICENÇA NA WEB (VALIDAÇÃO ESTRITA) --- */
+        /* --- GERADOR DE UUID / DEVICE ID PARA O NAVEGADOR WEB --- */
+        function getWebDeviceId() {
+            let id = localStorage.getItem('web_device_id');
+            if (!id) {
+                // Gera um UUIDv4 aleatório simples
+                id = 'web_' + 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+                localStorage.setItem('web_device_id', id);
+            }
+            return id;
+        }
+
+        const webDeviceId = getWebDeviceId();
+
+        /* --- CONTROLE DE ACESSO POR LICENÇA NA WEB (VÍNCULO DE APARELHO ESTRITO) --- */
         async function checkWebLicense() {
             const savedLicense = localStorage.getItem('user_license');
             if (savedLicense) {
-                const isValid = await verifySupabaseLicense(savedLicense);
+                const isValid = await verifyAndAssociateLicense(savedLicense);
                 if (isValid) {
                     document.getElementById('lockScreen').style.display = 'none';
                     if (!inputKey1.value) inputKey1.value = savedLicense;
@@ -897,9 +913,10 @@
             document.getElementById('lockScreen').style.display = 'flex';
         }
 
-        async function verifySupabaseLicense(key) {
+        async function verifyAndAssociateLicense(key) {
             if (!key) return false;
             try {
+                // 1. Busca a licença no banco
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/licenses?license_key=eq.${encodeURIComponent(key.trim())}&select=*`, {
                     method: 'GET',
                     headers: {
@@ -907,14 +924,52 @@
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                     }
                 });
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data && data.length > 0) {
-                        // VALIDAÇÃO ESTRITA: is_active PRECISA ser true!
-                        return data[0].is_active === true;
-                    }
+
+                if (!response.ok) return false;
+                const data = await response.json();
+                if (!data || data.length === 0) return false;
+
+                const license = data[0];
+
+                // Regra 1: Deve estar ativo
+                if (license.is_active !== true) return false;
+
+                // Regra 2: Validar device_id
+                const dbDeviceId = license.device_id;
+                
+                // Se a licença não possuir device_id ou estiver nulo, vincula a este navegador
+                if (!dbDeviceId || dbDeviceId === "null" || dbDeviceId === "") {
+                    const associateRes = await associateWebDevice(key, webDeviceId);
+                    return associateRes;
                 }
+
+                // Se já houver um device_id e for diferente deste navegador, bloqueia!
+                if (dbDeviceId !== webDeviceId) {
+                    console.warn("Licença em uso por outro aparelho:", dbDeviceId);
+                    return false;
+                }
+
+                return true;
+            } catch (_) {
                 return false;
+            }
+        }
+
+        async function associateWebDevice(key, devId) {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/licenses?license_key=eq.${encodeURIComponent(key.trim())}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        device_id: devId,
+                        activated_at: new Date().toISOString()
+                    })
+                });
+                return response.ok;
             } catch (_) {
                 return false;
             }
@@ -935,7 +990,8 @@
             btn.disabled = true;
             errorMsg.textContent = "";
 
-            const valid = await verifySupabaseLicense(key);
+            // Faz a validação e vinculação ao mesmo tempo
+            const valid = await verifyAndAssociateLicense(key);
             btn.textContent = "VALIDAR ACESSO";
             btn.disabled = false;
 
@@ -945,7 +1001,31 @@
                 if (!inputKey1.value) inputKey1.value = key;
                 if (!inputKey2.value) inputKey2.value = key;
             } else {
-                errorMsg.textContent = "Licença Inválida, Expirada ou Inativa!";
+                // Checar se a licença existe no banco mas tem outro device_id para dar a mensagem correta
+                try {
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/licenses?license_key=eq.${encodeURIComponent(key)}&select=*`, {
+                        method: 'GET',
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    });
+                    const data = await response.json();
+                    if (data && data.length > 0) {
+                        const lic = data[0];
+                        if (lic.is_active !== true) {
+                            errorMsg.textContent = "Esta licença foi desativada pelo administrador!";
+                        } else if (lic.device_id && lic.device_id !== webDeviceId) {
+                            errorMsg.textContent = "Esta licença já está em uso em outro aparelho!";
+                        } else {
+                            errorMsg.textContent = "Falha ao validar a licença. Tente novamente.";
+                        }
+                    } else {
+                        errorMsg.textContent = "Licença inválida ou inexistente!";
+                    }
+                } catch (_) {
+                    errorMsg.textContent = "Chave de licença inválida ou sem conexão!";
+                }
             }
         }
 
