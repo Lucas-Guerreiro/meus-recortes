@@ -26,6 +26,104 @@
             overflow-x: hidden;
         }
 
+        /* TELA DE BLOQUEIO DE LICENÇA */
+        .lock-screen-container {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #0d111d 0%, #080a10 100%);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .lock-box {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(18, 22, 36, 0.6);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            text-align: center;
+        }
+
+        .lock-logo {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #ff2a2a 0%, #ff7a00 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .lock-subtitle {
+            font-size: 13px;
+            color: #a0a5c0;
+            line-height: 1.5;
+        }
+
+        .lock-input-group {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .lock-input-group input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            padding: 12px 16px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
+            text-align: center;
+            letter-spacing: 1.5px;
+            transition: border-color 0.25s ease;
+        }
+
+        .lock-input-group input:focus {
+            border-color: #ff2a2a;
+        }
+
+        .btn-validate-license {
+            width: 100%;
+            background: linear-gradient(135deg, #ff2a2a 0%, #b30000 100%);
+            border: none;
+            border-radius: 14px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(255, 42, 42, 0.4);
+            transition: transform 0.15s ease;
+        }
+
+        .btn-validate-license:active {
+            transform: scale(0.97);
+        }
+
+        .lock-error-msg {
+            font-size: 12px;
+            font-weight: 700;
+            color: #ff4444;
+            min-height: 18px;
+        }
+
+        /* TABS DE MODO ULTRA MODERNAS COM NÉON E GLASSMORPHISM */
         .mode-tabs {
             position: fixed;
             top: 12px;
@@ -76,6 +174,7 @@
             box-shadow: 0 4px 20px rgba(255, 42, 42, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
         }
 
+        /* MODO CÂMERA FULLSCREEN */
         .fullscreen-cam-container {
             position: fixed;
             inset: 0;
@@ -556,6 +655,19 @@
 </head>
 <body>
 
+    <!-- OVERLAY DE BLOQUEIO DE LICENÇA (DESBLOQUEIO INICIAL DA WEB) -->
+    <div id="lockScreen" class="lock-screen-container">
+        <div class="lock-box">
+            <div class="lock-logo">Meus Recortes 🎬</div>
+            <p class="lock-subtitle">Insira uma chave de licença ativa para acessar o sistema web de gravação e controle</p>
+            <div class="lock-input-group">
+                <input type="text" id="webLicenseInput" placeholder="DIGITE SUA LICENÇA...">
+                <button class="btn-validate-license" id="btnValidate" onclick="validateWebLicense()">VALIDAR ACESSO</button>
+            </div>
+            <div id="lockErrorMsg" class="lock-error-msg"></div>
+        </div>
+    </div>
+
     <div class="screen-flash-overlay" id="screenFlash"></div>
 
     <button class="toggle-ui-btn" id="btnToggleUI" onclick="toggleUIAndFullscreen()" title="Ocultar/Exibir Controles">👁️</button>
@@ -758,8 +870,8 @@
 
         let webStream = null;
         let mediaRecorder = null;
-        let recordedChunks = []; // Guardará objetos { data: Blob, timestamp: number }
-        let initHeaderChunk = null; // Guardará o primeiro chunk vital que contém os cabeçalhos
+        let recordedChunks = []; 
+        let initHeaderChunk = null; 
         let isCamActive = false;
         let isProcessingClip = false;
 
@@ -769,6 +881,75 @@
         selectAntes.value = segAntes.toString();
         selectDepois.value = segDepois.toString();
         updateTimeText();
+
+        /* --- CONTROLE DE ACESSO POR LICENÇA NA WEB --- */
+        async function checkWebLicense() {
+            const savedLicense = localStorage.getItem('user_license');
+            if (savedLicense) {
+                // Tenta validar em segundo plano para certificar que a licença ainda é ativa
+                const isValid = await verifySupabaseLicense(savedLicense);
+                if (isValid) {
+                    document.getElementById('lockScreen').style.display = 'none';
+                    // Auto-preencher campos de controle remoto com a licença master para facilitar
+                    if (!inputKey1.value) inputKey1.value = savedLicense;
+                    if (!inputKey2.value) inputKey2.value = savedLicense;
+                    return;
+                }
+            }
+            document.getElementById('lockScreen').style.display = 'flex';
+        }
+
+        async function verifySupabaseLicense(key) {
+            if (!key) return false;
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/licenses?license_key=eq.${encodeURIComponent(key.trim())}&select=*`, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    return data && data.length > 0;
+                }
+                return false;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        async function validateWebLicense() {
+            const input = document.getElementById('webLicenseInput');
+            const errorMsg = document.getElementById('lockErrorMsg');
+            const btn = document.getElementById('btnValidate');
+            const key = input.value.trim().toUpperCase();
+
+            if (!key) {
+                errorMsg.textContent = "Digite uma chave de licença!";
+                return;
+            }
+
+            btn.textContent = "VERIFICANDO...";
+            btn.disabled = true;
+            errorMsg.textContent = "";
+
+            const valid = await verifySupabaseLicense(key);
+            btn.textContent = "VALIDAR ACESSO";
+            btn.disabled = false;
+
+            if (valid) {
+                localStorage.setItem('user_license', key);
+                document.getElementById('lockScreen').style.display = 'none';
+                if (!inputKey1.value) inputKey1.value = key;
+                if (!inputKey2.value) inputKey2.value = key;
+            } else {
+                errorMsg.textContent = "Licença Inválida, Expirada ou Inativa!";
+            }
+        }
+
+        // Executar verificação inicial
+        checkWebLicense();
 
         /* --- INDEXEDDB PARA SALVAR REPLAYS NO CELULAR --- */
         let db;
@@ -985,25 +1166,20 @@
                 mediaRecorder.ondataavailable = (e) => {
                     if (e.data && e.data.size > 0) {
                         const now = Date.now();
-                        
-                        // Guardar o primeiríssimo chunk que contém os cabeçalhos de vídeo
                         if (!initHeaderChunk) {
                             initHeaderChunk = e.data;
                         }
-                        
                         recordedChunks.push({
                             data: e.data,
                             timestamp: now
                         });
-                        
-                        // Manter o buffer máximo de 45 segundos para economizar memória e evitar lixo antigo
                         const cutoff = now - 45000;
                         while (recordedChunks.length > 0 && recordedChunks[0].timestamp < cutoff) {
                             recordedChunks.shift();
                         }
                     }
                 };
-                mediaRecorder.start(1000); // Gerar chunks a cada 1 segundo
+                mediaRecorder.start(1000);
             } catch (e) {
                 console.error("Erro MediaRecorder:", e);
             }
@@ -1030,7 +1206,6 @@
             msg.style.color = "#ff9800";
             msg.classList.add('show');
 
-            // Aguarda rigorosamente a passagem do tempo posterior
             await new Promise(r => setTimeout(r, segDepois * 1000));
 
             const endTime = Date.now();
@@ -1043,10 +1218,8 @@
             screenFlash.classList.add('flash');
             setTimeout(() => screenFlash.classList.remove('flash'), 300);
 
-            // Filtrar chunks gerados estritamente na janela temporal [startTime, endTime]
             const chunksFiltrados = recordedChunks.filter(c => c.timestamp >= startTime && c.timestamp <= endTime);
 
-            // Montar a lista final contendo o Header de Inicialização e os chunks da janela selecionada
             const finalBlobs = [];
             if (initHeaderChunk) {
                 finalBlobs.push(initHeaderChunk);
