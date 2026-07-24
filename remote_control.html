@@ -882,15 +882,13 @@
         selectDepois.value = segDepois.toString();
         updateTimeText();
 
-        /* --- CONTROLE DE ACESSO POR LICENÇA NA WEB --- */
+        /* --- CONTROLE DE ACESSO POR LICENÇA NA WEB (VALIDAÇÃO ESTRITA) --- */
         async function checkWebLicense() {
             const savedLicense = localStorage.getItem('user_license');
             if (savedLicense) {
-                // Tenta validar em segundo plano para certificar que a licença ainda é ativa
                 const isValid = await verifySupabaseLicense(savedLicense);
                 if (isValid) {
                     document.getElementById('lockScreen').style.display = 'none';
-                    // Auto-preencher campos de controle remoto com a licença master para facilitar
                     if (!inputKey1.value) inputKey1.value = savedLicense;
                     if (!inputKey2.value) inputKey2.value = savedLicense;
                     return;
@@ -911,7 +909,10 @@
                 });
                 if (response.ok) {
                     const data = await response.json();
-                    return data && data.length > 0;
+                    if (data && data.length > 0) {
+                        // VALIDAÇÃO ESTRITA: is_active PRECISA ser true!
+                        return data[0].is_active === true;
+                    }
                 }
                 return false;
             } catch (_) {
