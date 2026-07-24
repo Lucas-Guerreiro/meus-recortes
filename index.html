@@ -2,1440 +2,610 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Meus Recortes - Câmera & Galeria Pro 🎬</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Recortes - Transforme sua Quadra com Replas Profissionais 🎬</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: 'Outfit', sans-serif;
-            -webkit-tap-highlight-color: transparent;
+            scroll-behavior: smooth;
         }
 
         body {
             background-color: #080a10;
             color: #ffffff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             overflow-x: hidden;
         }
 
-        /* TELA DE BLOQUEIO DE LICENÇA (Sempre Visível Inicialmente) */
-        .lock-screen-container {
-            position: fixed;
-            inset: 0;
-            width: 100vw;
-            height: 100vh;
-            background: linear-gradient(135deg, #0d111d 0%, #080a10 100%);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .lock-box {
-            width: 100%;
-            max-width: 420px;
-            background: rgba(18, 22, 36, 0.6);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 24px;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
-            text-align: center;
-        }
-
-        .lock-logo {
-            font-size: 24px;
-            font-weight: 900;
-            letter-spacing: 1px;
+        /* Utilidades de Cores e Gradientes */
+        .text-gradient {
             background: linear-gradient(135deg, #ff2a2a 0%, #ff7a00 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .lock-subtitle {
-            font-size: 13px;
-            color: #a0a5c0;
-            line-height: 1.5;
-        }
-
-        .lock-input-group {
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
+            padding: 20px 4%;
+            background: rgba(8, 10, 16, 0.85);
+            backdrop-filter: blur(15px);
+            z-index: 100;
             display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 10px;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        .lock-input-group input {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 14px;
-            padding: 12px 16px;
-            color: #fff;
+        .logo {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        nav {
+            display: flex;
+            gap: 30px;
+        }
+
+        nav a {
+            color: #a0a5c0;
+            text-decoration: none;
             font-size: 14px;
             font-weight: 600;
-            outline: none;
-            text-align: center;
-            letter-spacing: 1.5px;
-            transition: border-color 0.25s ease;
+            transition: color 0.25s ease;
         }
 
-        .lock-input-group input:focus {
-            border-color: #ff2a2a;
+        nav a:hover {
+            color: #ff2a2a;
         }
 
-        .btn-validate-license {
-            width: 100%;
+        .btn-header {
             background: linear-gradient(135deg, #ff2a2a 0%, #b30000 100%);
+            color: #fff;
             border: none;
-            border-radius: 14px;
-            padding: 12px;
-            color: #fff;
-            font-size: 14px;
-            font-weight: 800;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(255, 42, 42, 0.4);
-            transition: transform 0.15s ease;
-        }
-
-        .btn-validate-license:active {
-            transform: scale(0.97);
-        }
-
-        .lock-error-msg {
-            font-size: 12px;
-            font-weight: 700;
-            color: #ff4444;
-            min-height: 18px;
-        }
-
-        /* ESTILOS DO APP (SÓ ENTRAM EM AÇÃO APÓS DESBLOQUEADO) */
-        .mode-tabs {
-            position: fixed;
-            top: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 50;
-            display: flex;
-            gap: 8px;
-            width: 94%;
-            max-width: 520px;
-            background: rgba(13, 16, 26, 0.75);
-            backdrop-filter: blur(20px);
-            padding: 6px;
-            border-radius: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-
-        .mode-tabs.hidden-ui {
-            opacity: 0;
-            pointer-events: none;
-            transform: translate(-50%, -20px);
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 10px 4px;
-            border-radius: 14px;
-            border: 1px solid transparent;
-            background: transparent;
-            color: #8f96b3;
-            font-size: 11px;
-            font-weight: 800;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-        }
-
-        .tab-btn.active {
-            background: linear-gradient(135deg, #ff2a2a 0%, #b30000 100%);
-            color: #ffffff;
-            border-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 4px 20px rgba(255, 42, 42, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-        }
-
-        .fullscreen-cam-container {
-            position: fixed;
-            inset: 0;
-            width: 100vw;
-            height: 100vh;
-            background: #000;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        video#webCamPreview {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .toggle-ui-btn {
-            position: fixed;
-            top: 66px;
-            right: 16px;
-            z-index: 60;
-            background: rgba(13, 16, 26, 0.85);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            cursor: pointer;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.6);
-        }
-
-        .cam-time-config {
-            position: absolute;
-            top: 70px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 30;
-            background: rgba(13, 16, 26, 0.85);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
-            padding: 8px 16px;
-            display: flex;
-            gap: 16px;
-            align-items: center;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.7);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-
-        .cam-time-config.hidden-ui {
-            opacity: 0;
-            pointer-events: none;
-            transform: translate(-50%, -20px);
-        }
-
-        .time-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-        }
-
-        .time-box label {
-            font-size: 9px;
-            font-weight: 800;
-            color: #a0a5c0;
-            text-transform: uppercase;
-        }
-
-        .time-box select {
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
-            padding: 4px 8px;
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: 800;
-            outline: none;
-        }
-
-        .cam-overlay-controls {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 30;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 14px;
-            width: 90%;
-            max-width: 380px;
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-
-        .btn-cam-control.hidden-ui {
-            display: none !important;
-        }
-
-        .btn-cam-control {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 16px;
-            color: #fff;
-            padding: 10px 22px;
+            border-radius: 12px;
+            padding: 10px 20px;
             font-size: 13px;
             font-weight: 800;
-            cursor: pointer;
-            box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
-            backdrop-filter: blur(10px);
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(255, 42, 42, 0.35);
+            transition: transform 0.2s ease;
         }
 
-        .btn-trigger-fullscreen {
-            width: 145px;
-            height: 145px;
-            border-radius: 50%;
-            border: 3px solid rgba(255, 255, 255, 0.35);
-            background: radial-gradient(circle at 30% 30%, #ff4d4d, #b30000 70%);
-            box-shadow: 
-                0 0 40px rgba(255, 42, 42, 0.6),
-                inset 0 4px 15px rgba(255, 255, 255, 0.6),
-                inset 0 -6px 20px rgba(0, 0, 0, 0.7);
-            color: #ffffff;
-            cursor: pointer;
+        .btn-header:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 160px 4% 80px 4%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 4px;
-            outline: none;
+            text-align: center;
             position: relative;
-            transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.12s ease;
+            background: radial-gradient(circle at top, rgba(255, 42, 42, 0.15) 0%, transparent 60%);
         }
 
-        .pulse-ring-modern {
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 900;
+            line-height: 1.1;
+            max-width: 900px;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: #a0a5c0;
+            max-width: 650px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff2a2a 0%, #ff7a00 100%);
+            color: #fff;
+            border: none;
+            border-radius: 16px;
+            padding: 16px 36px;
+            font-size: 16px;
+            font-weight: 800;
+            text-decoration: none;
+            box-shadow: 0 10px 25px rgba(255, 42, 42, 0.4);
+            transition: all 0.25s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(255, 42, 42, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 16px 36px;
+            font-size: 16px;
+            font-weight: 800;
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 4%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 900;
+            margin-bottom: 50px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: rgba(18, 22, 36, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 40px 30px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
             position: absolute;
-            inset: -8px;
-            border-radius: 50%;
-            border: 2px solid rgba(255, 77, 77, 0.6);
-            animation: ringPulse 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-            pointer-events: none;
-        }
-
-        @keyframes ringPulse {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            100% { transform: scale(1.25); opacity: 0; }
-        }
-
-        .btn-trigger-fullscreen.fired {
-            animation: fireShockwave 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            background: radial-gradient(circle at 30% 30%, #10b981, #047857 70%) !important;
-            box-shadow: 0 0 60px rgba(16, 185, 129, 0.9), inset 0 4px 15px rgba(255, 255, 255, 0.8) !important;
-            border-color: #10b981 !important;
-        }
-
-        @keyframes fireShockwave {
-            0% { transform: scale(0.85); }
-            50% { transform: scale(1.15); }
-            100% { transform: scale(1); }
-        }
-
-        .screen-flash-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(16, 185, 129, 0.35);
-            backdrop-filter: blur(4px);
-            z-index: 100;
-            pointer-events: none;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 42, 42, 0.1) 0%, transparent 100%);
             opacity: 0;
-            transition: opacity 0.15s ease;
+            transition: opacity 0.3s ease;
         }
 
-        .screen-flash-overlay.flash {
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 42, 42, 0.3);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .feature-card:hover::before {
             opacity: 1;
         }
 
-        .status-msg {
-            font-size: 13px;
+        .feature-icon {
+            font-size: 40px;
+            z-index: 2;
+        }
+
+        .feature-card h3 {
+            font-size: 20px;
             font-weight: 800;
-            color: #10b981;
-            background: rgba(8, 10, 16, 0.92);
-            padding: 8px 18px;
-            border-radius: 20px;
-            min-height: 20px;
-            text-align: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            backdrop-filter: blur(14px);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+            z-index: 2;
         }
 
-        .status-msg.show { opacity: 1; }
-
-        .gallery-container {
-            width: 100%;
-            max-width: 900px;
-            margin-top: 80px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .gallery-title {
-            font-size: 16px;
-            font-weight: 900;
-            color: #ff9800;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .replays-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 16px;
-        }
-
-        .replay-card {
-            background: rgba(18, 22, 36, 0.75);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        .replay-card video {
-            width: 100%;
-            aspect-ratio: 16/9;
-            border-radius: 12px;
-            background: #000;
-            object-fit: cover;
-        }
-
-        .replay-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 11px;
+        .feature-card p {
+            font-size: 14px;
             color: #a0a5c0;
+            line-height: 1.6;
+            z-index: 2;
         }
 
-        .replay-actions { display: flex; gap: 8px; }
-
-        .btn-action {
-            flex: 1;
-            padding: 10px;
-            border-radius: 12px;
-            border: none;
-            font-size: 11px;
-            font-weight: 800;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-        }
-
-        .btn-download { background: #10b981; color: #fff; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
-        .btn-delete { background: rgba(255, 42, 42, 0.15); border: 1px solid #ff2a2a; color: #ff2a2a; }
-
-        .remote-mode-container {
-            width: 100%;
-            max-width: 900px;
-            margin-top: 80px;
-            padding: 16px;
+        /* Seção do Gerador de Licença */
+        .license-generator-section {
+            padding: 100px 4%;
+            background: radial-gradient(circle at bottom, rgba(255, 122, 0, 0.1) 0%, transparent 60%);
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow-y: auto;
-            max-height: calc(100vh - 90px);
         }
 
-        .arcade-config-panel {
+        .generator-box {
             width: 100%;
-            background: rgba(18, 22, 36, 0.75);
+            max-width: 600px;
+            background: rgba(18, 22, 36, 0.85);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(16, 185, 129, 0.4);
-            border-radius: 20px;
-            padding: 16px;
-            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 32px;
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        .panel-title {
-            font-size: 12px;
-            font-weight: 900;
-            color: #10b981;
-            display: flex;
             align-items: center;
-            justify-content: space-between;
-            text-transform: uppercase;
+            gap: 20px;
+            text-align: center;
         }
 
-        .gamepad-status {
-            font-size: 11px;
-            font-weight: 700;
-            color: #ff9800;
-            background: rgba(255, 152, 0, 0.15);
-            padding: 2px 8px;
-            border-radius: 8px;
+        .generator-box h2 {
+            font-size: 28px;
+            font-weight: 900;
         }
 
-        .arcade-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 12px;
-        }
-
-        .arcade-row {
+        .input-email {
+            width: 100%;
             background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            padding: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .arcade-info { display: flex; flex-direction: column; gap: 2px; }
-        .arcade-name { font-size: 13px; font-weight: 800; }
-        .arcade-key-badge { font-size: 11px; color: #10b981; font-weight: 700; }
-        .arcade-controls { display: flex; gap: 6px; align-items: center; }
-
-        .btn-map {
-            background: rgba(16, 185, 129, 0.2);
-            border: 1px solid #10b981;
-            color: #10b981;
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 800;
-            cursor: pointer;
-        }
-
-        .btn-map:active, .btn-map.recording { background: #10b981; color: #000; }
-
-        .master-bar { width: 100%; margin-bottom: 16px; }
-
-        .btn-master {
-            width: 100%;
-            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
-            border: none;
-            border-radius: 18px;
-            padding: 16px;
-            color: #fff;
-            font-size: 15px;
-            font-weight: 900;
-            letter-spacing: 1.5px;
-            cursor: pointer;
-            box-shadow: 0 0 30px rgba(255, 152, 0, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-master:active, .btn-master.active { transform: scale(0.97); }
-
-        .cameras-grid {
-            width: 100%;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 16px;
-        }
-
-        .camera-card {
-            background: rgba(18, 22, 36, 0.75);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 14px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        .card-header { width: 100%; display: flex; align-items: center; justify-content: space-between; }
-        .camera-title { font-size: 13px; font-weight: 900; letter-spacing: 1px; }
-        .title-cam1 { color: #ff2a2a; }
-        .title-cam2 { color: #2196F3; }
-
-        .live-indicator { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 800; color: #10b981; }
-        .dot { width: 6px; height: 6px; background-color: #10b981; border-radius: 50%; box-shadow: 0 0 6px #10b981; }
-
-        .video-viewport {
-            width: 100%;
-            aspect-ratio: 16/9;
-            background: #000;
-            border-radius: 14px;
-            overflow: hidden;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
-        .video-viewport img { width: 100%; height: 100%; object-fit: cover; }
-
-        .video-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(8, 10, 16, 0.85);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px;
-            text-align: center;
-            font-size: 12px;
-            color: #a0a5c0;
-        }
-
-        .input-group { width: 100%; display: flex; flex-direction: column; gap: 4px; }
-
-        input, select {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            border-radius: 12px;
-            padding: 10px 14px;
+            border-radius: 16px;
+            padding: 16px 20px;
             color: #fff;
-            font-size: 13px;
+            font-size: 16px;
             font-weight: 600;
             outline: none;
             text-align: center;
+            transition: border-color 0.25s ease;
         }
 
-        .ip-row { display: flex; gap: 6px; }
-        .btn-connect {
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 12px;
-            color: #fff;
-            font-size: 11px;
-            font-weight: 800;
-            padding: 0 14px;
-            cursor: pointer;
+        .input-email:focus {
+            border-color: #ff2a2a;
         }
 
-        .btn-trigger-remote {
-            width: 130px;
-            height: 130px;
-            border-radius: 50%;
+        .btn-generate {
+            width: 100%;
+            background: linear-gradient(135deg, #ff2a2a 0%, #ff7a00 100%);
             border: none;
-            color: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 800;
             cursor: pointer;
-            display: flex;
+            box-shadow: 0 6px 20px rgba(255, 42, 42, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .btn-generate:hover {
+            transform: scale(1.02);
+        }
+
+        .result-box {
+            width: 100%;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 18px;
+            padding: 20px;
+            display: none;
             flex-direction: column;
+            gap: 12px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .license-key-display {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #10b981;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
-            outline: none;
-            margin-top: 6px;
+            gap: 10px;
+            cursor: pointer;
         }
 
-        .btn-cam1 { background: linear-gradient(135deg, #ff2a2a 0%, #cc0000 100%); box-shadow: 0 0 30px rgba(255, 42, 42, 0.4); }
-        .btn-cam2 { background: linear-gradient(135deg, #2196F3 0%, #1565C0 100%); box-shadow: 0 0 30px rgba(33, 150, 243, 0.4); }
-        .btn-trigger-remote:active, .btn-trigger-remote.active { transform: scale(0.92); }
+        .copy-hint {
+            font-size: 11px;
+            color: #a0a5c0;
+        }
+
+        /* Seção de Preços (Pricing) */
+        .pricing {
+            padding: 100px 4%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .pricing-card {
+            background: rgba(18, 22, 36, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 28px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+        }
+
+        .pricing-card.premium {
+            border-color: #ff2a2a;
+            box-shadow: 0 15px 35px rgba(255, 42, 42, 0.15);
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ff2a2a;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .price-title {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .price-value {
+            font-size: 44px;
+            font-weight: 900;
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+
+        .price-value span {
+            font-size: 14px;
+            color: #a0a5c0;
+            font-weight: 400;
+        }
+
+        .price-features {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .price-features li {
+            font-size: 14px;
+            color: #d1d5db;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .price-features li::before {
+            content: '✔️';
+            font-size: 12px;
+        }
+
+        .btn-pricing {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 14px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 800;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+
+        .pricing-card.premium .btn-pricing {
+            background: linear-gradient(135deg, #ff2a2a 0%, #b30000 100%);
+            border: none;
+            box-shadow: 0 6px 20px rgba(255, 42, 42, 0.35);
+        }
+
+        .btn-pricing:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .pricing-card.premium .btn-pricing:hover {
+            box-shadow: 0 10px 25px rgba(255, 42, 42, 0.5);
+        }
+
+        /* Footer */
+        footer {
+            padding: 60px 4%;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            width: 100%;
+            background: #06080d;
+            text-align: center;
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        footer a {
+            color: #ff2a2a;
+            text-decoration: none;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
 
-    <!-- OVERLAY DE BLOQUEIO DE LICENÇA (Sempre Presente Inicialmente) -->
-    <div id="lockScreen" class="lock-screen-container">
-        <div class="lock-box">
-            <div class="lock-logo">Meus Recortes 🎬</div>
-            <p class="lock-subtitle">Insira uma chave de licença ativa para acessar o sistema web de gravação e controle</p>
-            <div class="lock-input-group">
-                <input type="text" id="webLicenseInput" placeholder="DIGITE SUA LICENÇA...">
-                <button class="btn-validate-license" id="btnValidate" onclick="validateWebLicense()">VALIDAR ACESSO</button>
-            </div>
-            <div id="lockErrorMsg" class="lock-error-msg"></div>
+    <header>
+        <a href="#" class="logo">
+            <span style="font-size: 24px;">🎬</span>
+            <span style="font-weight: 900; color: #fff;">Meus<span class="text-gradient">Recortes</span></span>
+        </a>
+        <nav>
+            <a href="#features">Recursos</a>
+            <a href="#demo">Teste Grátis</a>
+            <a href="#pricing">Preços</a>
+        </nav>
+        <a href="app.html" class="btn-header">ACESSAR PAINEL WEB</a>
+    </header>
+
+    <section class="hero">
+        <h1>Transforme sua quadra esportiva em uma <span class="text-gradient">Arena de Replays</span></h1>
+        <p>Grave os melhores lances em câmera lenta e publique instantaneamente usando o navegador, aplicativos Android e acionamento via botões de arcade USB na quadra.</p>
+        <div class="hero-actions">
+            <a href="#demo" class="btn-primary">GERAR LICENÇA DE TESTE</a>
+            <a href="app.html" class="btn-secondary">ABRIR SISTEMA WEB</a>
         </div>
-    </div>
+    </section>
 
-    <!-- TEMPLATE DO APLICATIVO PRINCIPAL (Proteção Física contra Burla Visual F12) -->
-    <template id="appTemplate">
-        <div class="screen-flash-overlay" id="screenFlash"></div>
-
-        <button class="toggle-ui-btn" id="btnToggleUI" onclick="toggleUIAndFullscreen()" title="Ocultar/Exibir Controles">👁️</button>
-
-        <div class="mode-tabs" id="modeTabs">
-            <button class="tab-btn active" id="tabLocal" onclick="switchTab('local')">📱 CÂMERA FULLSCREEN</button>
-            <button class="tab-btn" id="tabGallery" onclick="switchTab('gallery')">📼 REPLAYS SALVOS</button>
-            <button class="tab-btn" id="tabRemote" onclick="switchTab('remote')">📡 REMOTO (2 CÂMS)</button>
-        </div>
-
-        <div id="sectionLocal" class="fullscreen-cam-container" onclick="handleViewportClick(event)">
-            <video id="webCamPreview" autoplay playsinline muted></video>
-
-            <div class="cam-time-config" id="camTimeConfig">
-                <div class="time-box">
-                    <label>⏱️ ANTES DO CLIQUE</label>
-                    <select id="timeAntes" onchange="updateTimeConfig()">
-                        <option value="5">5 Segundos</option>
-                        <option value="10" selected>10 Segundos</option>
-                        <option value="15">15 Segundos</option>
-                        <option value="20">20 Segundos</option>
-                        <option value="30">30 Segundos</option>
-                    </select>
-                </div>
-                <div class="time-box">
-                    <label>⏱️ DEPOIS DO CLIQUE</label>
-                    <select id="timeDepois" onchange="updateTimeConfig()">
-                        <option value="3">3 Segundos</option>
-                        <option value="5" selected>5 Segundos</option>
-                        <option value="10">10 Segundos</option>
-                        <option value="15">15 Segundos</option>
-                    </select>
-                </div>
+    <section class="features" id="features">
+        <h2 class="section-title">Tecnologia Inteligente para Quadras ⚡</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">🕹️</span>
+                <h3>Mapeamento de Botão Arcade</h3>
+                <p>Mapeie chaves USB e botões de arcade físicos instalados diretamente na parede da quadra para disparo de gravação instantâneo.</p>
             </div>
-
-            <div class="cam-overlay-controls" id="camOverlayControls">
-                <button class="btn-cam-control" id="btnToggleCam" onclick="toggleWebCam(event)">📷 LIGAR CÂMERA DO CELULAR</button>
-
-                <button class="btn-trigger-fullscreen" id="btnTriggerLocal" onclick="triggerLocalClip(event)">
-                    <div class="pulse-ring-modern"></div>
-                    <div style="font-size: 34px;" id="btnIconLocal">⚡</div>
-                    <div style="font-size: 14px; font-weight: 900; letter-spacing: 1px;" id="btnTextLocal">CORTAR REPLAY</div>
-                    <div style="font-size: 9px; opacity: 0.8;" id="clipInfoText">10s Antes / 5s Depois</div>
-                </button>
-
-                <div class="status-msg" id="statusMsgLocal"></div>
+            <div class="feature-card">
+                <span class="feature-icon">📡</span>
+                <h3>Controle Remoto Multiponto</h3>
+                <p>Controle até duas câmeras remotas de diferentes posições ao mesmo tempo em tempo real com conexões de rede local rápidas.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">💾</span>
+                <h3>Gravação Local & Offline</h3>
+                <p>Todos os vídeos são salvos no celular do operador via IndexedDB no navegador. Sem custos de servidores de nuvem.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">⏱️</span>
+                <h3>Corte Milimétrico do Lance</h3>
+                <p>Defina quantos segundos registrar antes do clique (ex: 10s) e após o clique (ex: 5s). Geração de arquivos estáveis.</p>
             </div>
         </div>
+    </section>
 
-        <div id="sectionGallery" class="gallery-container" style="display: none;">
-            <div class="gallery-title">
-                <span>📼 Galeria de Replays Salvos no Celular</span>
-                <button class="btn-action btn-delete" onclick="clearAllReplays()" style="width: auto; padding: 4px 10px;">🗑️ Limpar Todos</button>
-            </div>
+    <section class="license-generator-section" id="demo">
+        <div class="generator-box">
+            <h2>🎁 Teste Grátis por 7 Dias</h2>
+            <p class="lock-subtitle">Insira seu e-mail abaixo para gerar instantaneamente uma chave de licença de teste ativa no Supabase.</p>
+            
+            <input type="email" id="emailInput" class="input-email" placeholder="Digite seu melhor e-mail...">
+            <button class="btn-generate" id="btnGen" onclick="generateDemoLicense()">GERAR MINHA CHAVE DE LICENÇA</button>
 
-            <div class="replays-list" id="replaysList">
-                <div style="text-align: center; color: #a0a5c0; grid-column: 1/-1; padding: 40px;">Nenhum replay salvo ainda. Ligue a câmera e corte o primeiro lance!</div>
+            <div class="result-box" id="resultBox">
+                <div style="font-weight: 800; font-size: 15px; color: #10b981;">🎉 Licença de Teste Gerada com Sucesso!</div>
+                <div class="license-key-display" id="keyDisplay" onclick="copyLicenseKey()" title="Clique para copiar">
+                    <span id="keyValue">TEST-XXXX-XXXX</span>
+                    <span style="font-size: 15px;">📋</span>
+                </div>
+                <div class="copy-hint" id="copyHint">Clique acima para copiar a chave da licença</div>
+                <p class="lock-subtitle" style="margin-top: 10px;">Cole esta licença ao abrir o <a href="app.html" style="color: #ff2a2a; font-weight: 700; text-decoration: none;">Painel Web</a> ou no aplicativo Android para desbloquear!</p>
             </div>
         </div>
+    </section>
 
-        <div id="sectionRemote" class="remote-mode-container" style="display: none;">
-            <div class="arcade-config-panel">
-                <div class="panel-title">
-                    <span>🕹️ Configuração dos Botões Físicos de Arcade</span>
-                    <span class="gamepad-status" id="gamepadStatus">Aguardando Conexão USB/Bluetooth...</span>
-                </div>
-                
-                <div class="arcade-grid">
-                    <div class="arcade-row">
-                        <div class="arcade-info">
-                            <div class="arcade-name">Botão Arcade 1</div>
-                            <div class="arcade-key-badge" id="btnKeyBadge1">Mapeado: Tecla Espaço / Botão #0</div>
-                        </div>
-                        <div class="arcade-controls">
-                            <select id="btnTarget1" onchange="saveArcadeMapping()">
-                                <option value="local">Câmera deste Celular (MP4)</option>
-                                <option value="1">Câmera 1 (Lado A)</option>
-                                <option value="2">Câmera 2 (Lado B)</option>
-                                <option value="both">Ambas as Remotas</option>
-                            </select>
-                            <button class="btn-map" id="btnMap1" onclick="startMapping(1)">🎯 Mapear</button>
-                        </div>
-                    </div>
-
-                    <div class="arcade-row">
-                        <div class="arcade-info">
-                            <div class="arcade-name">Botão Arcade 2</div>
-                            <div class="arcade-key-badge" id="btnKeyBadge2">Mapeado: Tecla Enter / Botão #1</div>
-                        </div>
-                        <div class="arcade-controls">
-                            <select id="btnTarget2" onchange="saveArcadeMapping()">
-                                <option value="local">Câmera deste Celular (MP4)</option>
-                                <option value="1">Câmera 1 (Lado A)</option>
-                                <option value="2" selected>Câmera 2 (Lado B)</option>
-                                <option value="both">Ambas as Remotas</option>
-                            </select>
-                            <button class="btn-map" id="btnMap2" onclick="startMapping(2)">🎯 Mapear</button>
-                        </div>
-                    </div>
-                </div>
+    <section class="pricing" id="pricing">
+        <h2 class="section-title">Escolha o Plano Ideal para seu Negócio 💎</h2>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <div class="price-title">Plano Mensal</div>
+                <div class="price-value">R$ 97<span>/mês</span></div>
+                <ul class="price-features">
+                    <li>1 Licença de Câmera Ativa</li>
+                    <li>Acesso ao Painel Web Pro</li>
+                    <li>Mapeamento de Botões Arcade</li>
+                    <li>Vídeos Locais sem limite de espaço</li>
+                </ul>
+                <a href="#" class="btn-pricing">Assinar Mensal</a>
             </div>
 
-            <div class="master-bar">
-                <button class="btn-master" id="btnMaster" onclick="sendMasterCommand()">
-                    <span>⚡ CORTAR AS 2 CÂMERAS AO MESMO TEMPO</span>
-                </button>
-            </div>
-
-            <div class="cameras-grid">
-                <div class="camera-card">
-                    <div class="card-header">
-                        <div class="camera-title title-cam1">🎥 CÂMERA 1</div>
-                        <div class="live-indicator"><div class="dot"></div><span>ONLINE</span></div>
-                    </div>
-
-                    <div class="video-viewport">
-                        <img id="mjpegStream1" src="" alt="" onerror="onStreamError(1)" onload="onStreamLoad(1)">
-                        <div class="video-overlay" id="streamOverlay1"><span id="overlayText1">Digite o IP da Câmera 1</span></div>
-                    </div>
-
-                    <div class="input-group">
-                        <label>IP da Câmera 1 (Wi-Fi)</label>
-                        <div class="ip-row">
-                            <input type="text" id="cameraIp1" placeholder="Ex: 192.168.1.50">
-                            <button class="btn-connect" onclick="connectStream(1)">CONECTAR</button>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Chave da Licença 1</label>
-                        <input type="text" id="licenseKey1" placeholder="Licença Câmera 1...">
-                    </div>
-
-                    <button class="btn-trigger-remote btn-cam1" id="btnTrigger1" onclick="sendClipCommand(1)">
-                        <div style="font-size: 28px;">⚡</div>
-                        <div style="font-size: 12px; font-weight: 900;">CORTAR CÂM 1</div>
-                    </button>
-
-                    <div class="status-msg" id="statusMsg1"></div>
-                </div>
-
-                <div class="camera-card">
-                    <div class="card-header">
-                        <div class="camera-title title-cam2">🎥 CÂMERA 2</div>
-                        <div class="live-indicator"><div class="dot"></div><span>ONLINE</span></div>
-                    </div>
-
-                    <div class="video-viewport">
-                        <img id="mjpegStream2" src="" alt="" onerror="onStreamError(2)" onload="onStreamLoad(2)">
-                        <div class="video-overlay" id="streamOverlay2"><span id="overlayText2">Digite o IP da Câmera 2</span></div>
-                    </div>
-
-                    <div class="input-group">
-                        <label>IP da Câmera 2 (Wi-Fi)</label>
-                        <div class="ip-row">
-                            <input type="text" id="cameraIp2" placeholder="Ex: 192.168.1.60">
-                            <button class="btn-connect" onclick="connectStream(2)">CONECTAR</button>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Chave da Licença 2</label>
-                        <input type="text" id="licenseKey2" placeholder="Licença Câmera 2...">
-                    </div>
-
-                    <button class="btn-trigger-remote btn-cam2" id="btnTrigger2" onclick="sendClipCommand(2)">
-                        <div style="font-size: 28px;">⚡</div>
-                        <div style="font-size: 12px; font-weight: 900;">CORTAR CÂM 2</div>
-                    </button>
-
-                    <div class="status-msg" id="statusMsg2"></div>
-                </div>
+            <div class="pricing-card premium">
+                <span class="pricing-badge">Mais Popular</span>
+                <div class="price-title">Plano Anual</div>
+                <div class="price-value">R$ 79<span>/mês</span></div>
+                <ul class="price-features">
+                    <li>Equivalente a R$ 948 por ano</li>
+                    <li>Todas as funcionalidades inclusas</li>
+                    <li>Suporte prioritário 24/7</li>
+                    <li>Atualizações gratuitas do app Android</li>
+                </ul>
+                <a href="#" class="btn-pricing">Assinar Anual</a>
             </div>
         </div>
-    </template>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Meus Recortes. Desenvolvido por <a href="app.html">Lucas Guerreiro</a>. Todos os direitos reservados.</p>
+    </footer>
 
     <script>
         const SUPABASE_URL = "https://jmlkgxkvlrtpqukgmdqu.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptbGtneGt2bHJ0cHF1a2dtZHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxOTk3NDUsImV4cCI6MjA5OTc3NTc0NX0.mICpFr2gZfUvKmZb_RDqnw3yoswgKeaV2smZkbhb17w";
 
-        // Referências iniciais de validação
-        const webLicenseInput = document.getElementById('webLicenseInput');
-        const lockScreen = document.getElementById('lockScreen');
-        const lockErrorMsg = document.getElementById('lockErrorMsg');
-        const btnValidate = document.getElementById('btnValidate');
-
-        let inputKey1, inputKey2, inputIp1, inputIp2;
-        let selectAntes, selectDepois, clipInfoText, screenFlash;
-        let btnKeyBadge1, btnKeyBadge2, btnTarget1, btnTarget2, gamepadStatus;
-
-        let isUiVisible = true;
-        let mappingTarget = null;
-        let arcadeMap1 = JSON.parse(localStorage.getItem('arcade_map_1') || '{"type":"keyboard", "value":"Space", "label":"Tecla Espaço"}');
-        let arcadeMap2 = JSON.parse(localStorage.getItem('arcade_map_2') || '{"type":"keyboard", "value":"Enter", "label":"Tecla Enter"}');
-
-        let webStream = null;
-        let mediaRecorder = null;
-        let recordedChunks = []; 
-        let initHeaderChunk = null; 
-        let isCamActive = false;
-        let isProcessingClip = false;
-
-        let segAntes = parseInt(localStorage.getItem('seg_antes') || '10');
-        let segDepois = parseInt(localStorage.getItem('seg_depois') || '5');
-
-        /* --- GERADOR DE UUID / DEVICE ID PARA O NAVEGADOR WEB --- */
-        function getWebDeviceId() {
-            let id = localStorage.getItem('web_device_id');
-            if (!id) {
-                id = 'web_' + 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-                    return v.toString(16);
-                });
-                localStorage.setItem('web_device_id', id);
+        function generateRandomKey() {
+            // Gera chave no padrão TEST-XXXX-XXXX-XXXX
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let part1 = '';
+            let part2 = '';
+            let part3 = '';
+            for (let i = 0; i < 4; i++) {
+                part1 += chars.charAt(Math.floor(Math.random() * chars.length));
+                part2 += chars.charAt(Math.floor(Math.random() * chars.length));
+                part3 += chars.charAt(Math.floor(Math.random() * chars.length));
             }
-            return id;
+            return `TEST-${part1}-${part2}-${part3}`;
         }
 
-        const webDeviceId = getWebDeviceId();
+        async function generateDemoLicense() {
+            const emailInput = document.getElementById('emailInput');
+            const btnGen = document.getElementById('btnGen');
+            const resultBox = document.getElementById('resultBox');
+            const keyValue = document.getElementById('keyValue');
 
-        /* --- CONTROLE DE ACESSO POR LICENÇA NA WEB (VÍNCULO DE APARELHO ESTRITO) --- */
-        async function checkWebLicense() {
-            const savedLicense = localStorage.getItem('user_license');
-            if (savedLicense) {
-                const isValid = await verifyAndAssociateLicense(savedLicense);
-                if (isValid) {
-                    unlockAppLayout(savedLicense);
-                    return;
-                }
-            }
-            lockScreen.style.display = 'flex';
-        }
-
-        async function verifyAndAssociateLicense(key) {
-            if (!key) return false;
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/licenses?license_key=eq.${encodeURIComponent(key.trim())}&select=*`, {
-                    method: 'GET',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
-
-                if (!response.ok) return false;
-                const data = await response.json();
-                if (!data || data.length === 0) return false;
-
-                const license = data[0];
-
-                if (license.is_active !== true) return false;
-
-                const dbDeviceId = license.device_id;
-                
-                if (!dbDeviceId || dbDeviceId === "null" || dbDeviceId === "") {
-                    const associateRes = await associateWebDevice(key, webDeviceId);
-                    return associateRes;
-                }
-
-                if (dbDeviceId !== webDeviceId) {
-                    console.warn("Licença em uso por outro aparelho:", dbDeviceId);
-                    return false;
-                }
-
-                return true;
-            } catch (_) {
-                return false;
-            }
-        }
-
-        async function associateWebDevice(key, devId) {
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/licenses?license_key=eq.${encodeURIComponent(key.trim())}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        device_id: devId,
-                        activated_at: new Date().toISOString()
-                    })
-                });
-                return response.ok;
-            } catch (_) {
-                return false;
-            }
-        }
-
-        async function validateWebLicense() {
-            const key = webLicenseInput.value.trim().toUpperCase();
-
-            if (!key) {
-                lockErrorMsg.textContent = "Digite uma chave de licença!";
+            const email = emailInput.value.trim();
+            if (!email || !email.includes('@')) {
+                alert("Por favor, digite um e-mail válido!");
+                emailInput.focus();
                 return;
             }
 
-            btnValidate.textContent = "VERIFICANDO...";
-            btnValidate.disabled = true;
-            lockErrorMsg.textContent = "";
+            btnGen.textContent = "GERANDO...";
+            btnGen.disabled = true;
 
-            const valid = await verifyAndAssociateLicense(key);
-            btnValidate.textContent = "VALIDAR ACESSO";
-            btnValidate.disabled = false;
-
-            if (valid) {
-                localStorage.setItem('user_license', key);
-                unlockAppLayout(key);
-            } else {
-                try {
-                    const response = await fetch(`${SUPABASE_URL}/rest/v1/licenses?license_key=eq.${encodeURIComponent(key)}&select=*`, {
-                        method: 'GET',
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                        }
-                    });
-                    const data = await response.json();
-                    if (data && data.length > 0) {
-                        const lic = data[0];
-                        if (lic.is_active !== true) {
-                            lockErrorMsg.textContent = "Esta licença foi desativada pelo administrador!";
-                        } else if (lic.device_id && lic.device_id !== webDeviceId) {
-                            lockErrorMsg.textContent = "Esta licença já está em uso em outro aparelho!";
-                        } else {
-                            lockErrorMsg.textContent = "Falha ao validar a licença. Tente novamente.";
-                        }
-                    } else {
-                        lockErrorMsg.textContent = "Licença inválida ou inexistente!";
-                    }
-                } catch (_) {
-                    lockErrorMsg.textContent = "Chave de licença inválida ou sem conexão!";
-                }
-            }
-        }
-
-        function unlockAppLayout(licenseKey) {
-            // Remove a tela de bloqueio do DOM
-            lockScreen.style.display = 'none';
-            lockScreen.parentNode.removeChild(lockScreen);
-
-            // Injeta o HTML principal do template de forma segura
-            const template = document.getElementById('appTemplate');
-            const clone = template.content.cloneNode(true);
-            document.body.appendChild(clone);
-
-            // Vincula referências do DOM da interface desbloqueada
-            inputKey1 = document.getElementById('licenseKey1');
-            inputKey2 = document.getElementById('licenseKey2');
-            inputIp1 = document.getElementById('cameraIp1');
-            inputIp2 = document.getElementById('cameraIp2');
-            selectAntes = document.getElementById('timeAntes');
-            selectDepois = document.getElementById('timeDepois');
-            clipInfoText = document.getElementById('clipInfoText');
-            screenFlash = document.getElementById('screenFlash');
-            btnKeyBadge1 = document.getElementById('btnKeyBadge1');
-            btnKeyBadge2 = document.getElementById('btnKeyBadge2');
-            btnTarget1 = document.getElementById('btnTarget1');
-            btnTarget2 = document.getElementById('btnTarget2');
-            gamepadStatus = document.getElementById('gamepadStatus');
-
-            // Inicializar estados da interface
-            selectAntes.value = segAntes.toString();
-            selectDepois.value = segDepois.toString();
-            updateTimeText();
-
-            if (localStorage.getItem('remote_key_1')) inputKey1.value = localStorage.getItem('remote_key_1');
-            if (localStorage.getItem('remote_key_2')) inputKey2.value = localStorage.getItem('remote_key_2');
-            if (localStorage.getItem('arcade_target_1')) btnTarget1.value = localStorage.getItem('arcade_target_1');
-            if (localStorage.getItem('arcade_target_2')) btnTarget2.value = localStorage.getItem('arcade_target_2');
-
-            // Preenche com a licença Master se estiverem em branco
-            if (!inputKey1.value) inputKey1.value = licenseKey;
-            if (!inputKey2.value) inputKey2.value = licenseKey;
-
-            updateBadges();
-
-            if (localStorage.getItem('remote_ip_1')) {
-                inputIp1.value = localStorage.getItem('remote_ip_1');
-                connectStream(1);
-            }
-            if (localStorage.getItem('remote_ip_2')) {
-                inputIp2.value = localStorage.getItem('remote_ip_2');
-                connectStream(2);
-            }
-
-            inputKey1.addEventListener('input', () => localStorage.setItem('remote_key_1', inputKey1.value.trim()));
-            inputKey2.addEventListener('input', () => localStorage.setItem('remote_key_2', inputKey2.value.trim()));
-
-            // Inicializa Banco de Dados IndexedDB
-            initIndexedDB();
-
-            // Ativa o loop do Gamepad
-            requestAnimationFrame(pollGamepad);
-        }
-
-        // Executar verificação inicial
-        checkWebLicense();
-
-        /* --- INDEXEDDB PARA SALVAR REPLAYS NO CELULAR --- */
-        let db;
-        function initIndexedDB() {
-            const request = indexedDB.open("MeusRecortesDB", 1);
-            request.onupgradeneeded = (e) => {
-                db = e.target.result;
-                if (!db.objectStoreNames.contains("replays")) {
-                    db.createObjectStore("replays", { keyPath: "id", autoIncrement: true });
-                }
-            };
-            request.onsuccess = (e) => {
-                db = e.target.result;
-                loadGalleryReplays();
-            };
-        }
-
-        function saveReplayToDB(blob, name) {
-            if (!db) return;
-            const transaction = db.transaction(["replays"], "readwrite");
-            const store = transaction.objectStore("replays");
-            const replayItem = {
-                name: name,
-                date: new Date().toLocaleString("pt-BR"),
-                blob: blob
-            };
-            store.add(replayItem);
-            transaction.oncomplete = () => {
-                loadGalleryReplays();
-            };
-        }
-
-        function loadGalleryReplays() {
-            if (!db) return;
-            const replaysList = document.getElementById('replaysList');
-            if (!replaysList) return;
-            const transaction = db.transaction(["replays"], "readonly");
-            const store = transaction.objectStore("replays");
-            const getRequest = store.getAll();
-
-            getRequest.onsuccess = () => {
-                const items = getRequest.result;
-                if (!items || items.length === 0) {
-                    replaysList.innerHTML = `<div style="text-align: center; color: #a0a5c0; grid-column: 1/-1; padding: 40px;">Nenhum replay salvo ainda. Ligue a câmera e corte o primeiro lance!</div>`;
-                    return;
-                }
-
-                replaysList.innerHTML = items.reverse().map(item => {
-                    const videoUrl = URL.createObjectURL(item.blob);
-                    return `
-                        <div class="replay-card">
-                            <video src="${videoUrl}" controls playsinline></video>
-                            <div class="replay-meta">
-                                <span>📅 ${item.date}</span>
-                                <span>📹 ${item.name}</span>
-                            </div>
-                            <div class="replay-actions">
-                                <button class="btn-action btn-download" onclick="downloadReplayBlob(${item.id})">💾 Baixar MP4</button>
-                                <button class="btn-action btn-delete" onclick="deleteReplayFromDB(${item.id})">🗑️ Apagar</button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            };
-        }
-
-        function downloadReplayBlob(id) {
-            const transaction = db.transaction(["replays"], "readonly");
-            const store = transaction.objectStore("replays");
-            const getReq = store.get(id);
-            getReq.onsuccess = () => {
-                const item = getReq.result;
-                if (!item) return;
-                const url = URL.createObjectURL(item.blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = item.name;
-                document.body.appendChild(a);
-                a.click();
-                setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 150);
-            };
-        }
-
-        function deleteReplayFromDB(id) {
-            const transaction = db.transaction(["replays"], "readwrite");
-            const store = transaction.objectStore("replays");
-            store.delete(id);
-            transaction.oncomplete = () => loadGalleryReplays();
-        }
-
-        function clearAllReplays() {
-            if (!confirm("Tem certeza que deseja apagar todos os replays salvos no celular?")) return;
-            const transaction = db.transaction(["replays"], "readwrite");
-            const store = transaction.objectStore("replays");
-            store.clear();
-            transaction.oncomplete = () => loadGalleryReplays();
-        }
-
-        function toggleUIAndFullscreen() {
-            isUiVisible = !isUiVisible;
-            const modeTabs = document.getElementById('modeTabs');
-            const camTimeConfig = document.getElementById('camTimeConfig');
-            const btnToggleCam = document.getElementById('btnToggleCam');
-            const btnToggleUI = document.getElementById('btnToggleUI');
-
-            if (!isUiVisible) {
-                modeTabs.classList.add('hidden-ui');
-                camTimeConfig.classList.add('hidden-ui');
-                btnToggleCam.classList.add('hidden-ui');
-                btnToggleUI.textContent = '👁️‍🗨️';
-                
-                if (document.documentElement.requestFullscreen) {
-                    document.documentElement.requestFullscreen().catch(() => {});
-                } else if (document.documentElement.webkitRequestFullscreen) {
-                    document.documentElement.webkitRequestFullscreen();
-                }
-            } else {
-                modeTabs.classList.remove('hidden-ui');
-                camTimeConfig.classList.remove('hidden-ui');
-                btnToggleCam.classList.remove('hidden-ui');
-                btnToggleUI.textContent = '👁️';
-
-                if (document.exitFullscreen) {
-                    document.exitFullscreen().catch(() => {});
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                }
-            }
-        }
-
-        function handleViewportClick(e) {
-            if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'SELECT') {
-                toggleUIAndFullscreen();
-            }
-        }
-
-        function updateTimeConfig() {
-            segAntes = parseInt(selectAntes.value);
-            segDepois = parseInt(selectDepois.value);
-            localStorage.setItem('seg_antes', segAntes);
-            localStorage.setItem('seg_depois', segDepois);
-            updateTimeText();
-        }
-
-        function updateTimeText() {
-            if (clipInfoText) {
-                clipInfoText.textContent = `${segAntes}s Antes / ${segDepois}s Depois`;
-            }
-        }
-
-        function switchTab(mode) {
-            const tabLocal = document.getElementById('tabLocal');
-            const tabGallery = document.getElementById('tabGallery');
-            const tabRemote = document.getElementById('tabRemote');
-            
-            const secLocal = document.getElementById('sectionLocal');
-            const secGallery = document.getElementById('sectionGallery');
-            const secRemote = document.getElementById('sectionRemote');
-
-            tabLocal.classList.remove('active');
-            tabGallery.classList.remove('active');
-            tabRemote.classList.remove('active');
-
-            secLocal.style.display = 'none';
-            secGallery.style.display = 'none';
-            secRemote.style.display = 'none';
-
-            if (mode === 'local') {
-                tabLocal.classList.add('active');
-                secLocal.style.display = 'flex';
-            } else if (mode === 'gallery') {
-                tabGallery.classList.add('active');
-                secGallery.style.display = 'flex';
-                loadGalleryReplays();
-            } else {
-                tabRemote.classList.add('active');
-                secRemote.style.display = 'flex';
-            }
-        }
-
-        async function toggleWebCam(e) {
-            if (e) e.stopPropagation();
-            const videoElem = document.getElementById('webCamPreview');
-            const btnToggle = document.getElementById('btnToggleCam');
-
-            if (!isCamActive) {
-                try {
-                    webStream = await navigator.mediaDevices.getUserMedia({
-                        video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
-                        audio: true
-                    });
-                    videoElem.srcObject = webStream;
-                    isCamActive = true;
-                    btnToggle.textContent = "🛑 DESLIGAR CÂMERA";
-                    btnToggle.style.background = "#ff2a2a";
-
-                    startBufferRecorder();
-                } catch (err) {
-                    alert("Erro ao acessar a câmera: " + err.message);
-                }
-            } else {
-                if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
-                if (webStream) webStream.getTracks().forEach(track => track.stop());
-                videoElem.srcObject = null;
-                isCamActive = false;
-                btnToggle.textContent = "📷 LIGAR CÂMERA DO CELULAR";
-                btnToggle.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
-            }
-        }
-
-        function startBufferRecorder() {
-            recordedChunks = [];
-            initHeaderChunk = null;
-            let options = { mimeType: 'video/webm' };
-            if (MediaRecorder.isTypeSupported('video/mp4')) options = { mimeType: 'video/mp4' };
+            const newLicenseKey = generateRandomKey();
 
             try {
-                mediaRecorder = new MediaRecorder(webStream, options);
-                mediaRecorder.ondataavailable = (e) => {
-                    if (e.data && e.data.size > 0) {
-                        const now = Date.now();
-                        if (!initHeaderChunk) {
-                            initHeaderChunk = e.data;
-                        }
-                        recordedChunks.push({
-                            data: e.data,
-                            timestamp: now
-                        });
-                        const cutoff = now - 45000;
-                        while (recordedChunks.length > 0 && recordedChunks[0].timestamp < cutoff) {
-                            recordedChunks.shift();
-                        }
-                    }
-                };
-                mediaRecorder.start(1000);
-            } catch (e) {
-                console.error("Erro MediaRecorder:", e);
-            }
-        }
-
-        async function triggerLocalClip(e) {
-            if (e) e.stopPropagation();
-            const btn = document.getElementById('btnTriggerLocal');
-            const btnIcon = document.getElementById('btnIconLocal');
-            const btnText = document.getElementById('btnTextLocal');
-            const msg = document.getElementById('statusMsgLocal');
-
-            if (!isCamActive || recordedChunks.length === 0 || isProcessingClip) return;
-
-            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-
-            isProcessingClip = true;
-            btn.classList.add('active');
-
-            const clickTime = Date.now();
-            const startTime = clickTime - (segAntes * 1000);
-
-            msg.textContent = `Aguardando ${segDepois}s posteriores... ⏱️`;
-            msg.style.color = "#ff9800";
-            msg.classList.add('show');
-
-            await new Promise(r => setTimeout(r, segDepois * 1000));
-
-            const endTime = Date.now();
-
-            btn.classList.remove('active');
-            btn.classList.add('fired');
-            btnIcon.textContent = '🎬';
-            btnText.textContent = 'RECORTADO!';
-
-            screenFlash.classList.add('flash');
-            setTimeout(() => screenFlash.classList.remove('flash'), 300);
-
-            const chunksFiltrados = recordedChunks.filter(c => c.timestamp >= startTime && c.timestamp <= endTime);
-
-            const finalBlobs = [];
-            if (initHeaderChunk) {
-                finalBlobs.push(initHeaderChunk);
-            }
-            chunksFiltrados.forEach(c => {
-                if (c.data !== initHeaderChunk) {
-                    finalBlobs.push(c.data);
-                }
-            });
-
-            const mime = (mediaRecorder && mediaRecorder.mimeType) ? mediaRecorder.mimeType : 'video/mp4';
-            const blob = new Blob(finalBlobs, { type: mime });
-            const timeStamp = new Date().toISOString().replace(/[:.-]/g, "_").substring(0, 15);
-            const fileName = `REPLAY_${timeStamp}.mp4`;
-
-            saveReplayToDB(blob, fileName);
-
-            const duracaoReal = Math.round((endTime - startTime) / 1000);
-            msg.textContent = `Vídeo de ${duracaoReal}s salvo na Galeria! 📼✨`;
-            msg.style.color = "#10b981";
-
-            setTimeout(() => {
-                btn.classList.remove('fired');
-                btnIcon.textContent = '⚡';
-                btnText.textContent = 'CORTAR REPLAY';
-                isProcessingClip = false;
-                setTimeout(() => msg.classList.remove('show'), 2500);
-            }, 1500);
-        }
-
-        function updateBadges() {
-            if (btnKeyBadge1) btnKeyBadge1.textContent = `Mapeado: ${arcadeMap1.label}`;
-            if (btnKeyBadge2) btnKeyBadge2.textContent = `Mapeado: ${arcadeMap2.label}`;
-        }
-
-        function saveArcadeMapping() {
-            localStorage.setItem('arcade_target_1', btnTarget1.value);
-            localStorage.setItem('arcade_target_2', btnTarget2.value);
-        }
-
-        function startMapping(btnNum) {
-            mappingTarget = btnNum;
-            const btnMap = document.getElementById(`btnMap${btnNum}`);
-            btnMap.textContent = "Pressione o Botão...";
-            btnMap.classList.add('recording');
-        }
-
-        function finishMapping(type, value, label) {
-            if (mappingTarget === 1) {
-                arcadeMap1 = { type, value, label };
-                localStorage.setItem('arcade_map_1', JSON.stringify(arcadeMap1));
-                document.getElementById('btnMap1').textContent = "🎯 Mapear";
-                document.getElementById('btnMap1').classList.remove('recording');
-            } else if (mappingTarget === 2) {
-                arcadeMap2 = { type, value, label };
-                localStorage.setItem('arcade_map_2', JSON.stringify(arcadeMap2));
-                document.getElementById('btnMap2').textContent = "🎯 Mapear";
-                document.getElementById('btnMap2').classList.remove('recording');
-            }
-            mappingTarget = null;
-            updateBadges();
-        }
-
-        function connectStream(camNum) {
-            const ipInput = camNum === 1 ? inputIp1 : inputIp2;
-            const img = document.getElementById(`mjpegStream${camNum}`);
-            const overlay = document.getElementById(`streamOverlay${camNum}`);
-            const overlayText = document.getElementById(`overlayText${camNum}`);
-
-            if (!ipInput) return;
-            const ip = ipInput.value.trim();
-            if (!ip) return;
-            localStorage.setItem(`remote_ip_${camNum}`, ip);
-
-            overlayText.textContent = `Conectando Câmera ${camNum}...`;
-            overlay.style.display = "flex";
-
-            img.src = `http://${ip}:8080/stream?t=${Date.now()}`;
-        }
-
-        function onStreamLoad(camNum) {
-            document.getElementById(`streamOverlay${camNum}`).style.display = "none";
-        }
-
-        function onStreamError(camNum) {
-            document.getElementById(`streamOverlay${camNum}`).style.display = "flex";
-            document.getElementById(`overlayText${camNum}`).textContent = `Câmera ${camNum} Offline ou IP Incorreto`;
-        }
-
-        async function postCommand(key) {
-            if (!key) return false;
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/replay_commands`, {
+                // Insere a licença diretamente no banco de dados Supabase na tabela licenses
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/licenses`, {
                     method: 'POST',
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
@@ -1443,155 +613,41 @@
                         'Content-Type': 'application/json',
                         'Prefer': 'return=minimal'
                     },
-                    body: JSON.stringify({ license_key: key, command: 'TRIGGER_CLIP' })
+                    body: JSON.stringify({
+                        license_key: newLicenseKey,
+                        is_active: true,
+                        device_id: null,
+                        activated_at: null
+                    })
                 });
-                return response.ok;
-            } catch (_) {
-                return false;
-            }
-        }
 
-        async function triggerByTarget(target) {
-            if (target === "local") {
-                triggerLocalClip();
-            } else if (target === "1") {
-                sendClipCommand(1);
-            } else if (target === "2") {
-                sendClipCommand(2);
-            } else if (target === "both") {
-                sendMasterCommand();
-            }
-        }
-
-        async function sendClipCommand(camNum) {
-            const btn = document.getElementById(`btnTrigger${camNum}`);
-            const keyInput = camNum === 1 ? inputKey1 : inputKey2;
-            const key = keyInput.value.trim();
-
-            if (!key) {
-                alert(`Por favor, digite a chave da Licença da Câmera ${camNum}!`);
-                keyInput.focus();
-                return;
-            }
-
-            if (navigator.vibrate) navigator.vibrate(80);
-
-            btn.classList.add('active');
-            setTimeout(() => btn.classList.remove('active'), 150);
-
-            const ok = await postCommand(key);
-            showStatus(camNum, ok ? `Câmera ${camNum} Cortada! 🚀` : "Erro ao enviar", ok ? "#10b981" : "#ff2a2a");
-        }
-
-        async function sendMasterCommand() {
-            const btn = document.getElementById('btnMaster');
-            const key1 = inputKey1.value.trim();
-            const key2 = inputKey2.value.trim();
-
-            if (!key1 && !key2) {
-                alert("Digite a chave de ao menos uma câmera!");
-                return;
-            }
-
-            if (navigator.vibrate) navigator.vibrate([80, 50, 80]);
-
-            btn.classList.add('active');
-            setTimeout(() => btn.classList.remove('active'), 150);
-
-            const res1 = key1 ? postCommand(key1) : Promise.resolve(false);
-            const res2 = key2 ? postCommand(key2) : Promise.resolve(false);
-
-            const [ok1, ok2] = await Promise.all([res1, res2]);
-
-            if (key1) showStatus(1, ok1 ? "Câmera 1 Cortada! 🚀" : "Erro", ok1 ? "#10b981" : "#ff2a2a");
-            if (key2) showStatus(2, ok2 ? "Câmera 2 Cortada! 🚀" : "Erro", ok2 ? "#10b981" : "#ff2a2a");
-        }
-
-        function showStatus(camNum, text, color) {
-            const msg = document.getElementById(`statusMsg${camNum}`);
-            msg.textContent = text;
-            msg.style.color = color;
-            msg.classList.add('show');
-            setTimeout(() => msg.classList.remove('show'), 3000);
-        }
-
-        /* --- MAPEAMENTO E ESCUTA DE TECLAS DO TECLADO / TECLADO ARCADE --- */
-        document.addEventListener('keydown', (event) => {
-            // Verifica se a tela ainda está bloqueada
-            if (document.getElementById('lockScreen')) return;
-            if ([inputKey1, inputKey2, inputIp1, inputIp2].includes(document.activeElement)) return;
-
-            const code = event.code || event.key;
-
-            if (mappingTarget !== null) {
-                event.preventDefault();
-                finishMapping('keyboard', code, `Tecla: ${code}`);
-                return;
-            }
-
-            if (arcadeMap1.type === 'keyboard' && (code === arcadeMap1.value || (arcadeMap1.value === 'Space' && event.key === ' '))) {
-                event.preventDefault();
-                triggerByTarget(btnTarget1.value);
-            } else if (arcadeMap2.type === 'keyboard' && (code === arcadeMap2.value || (arcadeMap2.value === 'Space' && event.key === ' '))) {
-                event.preventDefault();
-                triggerByTarget(btnTarget2.value);
-            }
-        });
-
-        /* --- MAPEAMENTO E ESCUTA DAS PLACAS DE ARCADE USB (GAMEPAD HID API) --- */
-        window.addEventListener("gamepadconnected", (e) => {
-            if (gamepadStatus) {
-                gamepadStatus.textContent = `🕹️ Placa Arcade USB Conectada (${e.gamepad.id.substring(0, 20)}...)`;
-                gamepadStatus.style.color = "#10b981";
-                gamepadStatus.style.background = "rgba(16, 185, 129, 0.15)";
-            }
-        });
-
-        window.addEventListener("gamepaddisconnected", () => {
-            if (gamepadStatus) {
-                gamepadStatus.textContent = "Aguardando Conexão USB/Bluetooth...";
-                gamepadStatus.style.color = "#ff9800";
-                gamepadStatus.style.background = "rgba(255, 152, 0, 0.15)";
-            }
-        });
-
-        let lastGamepadBtnState = {};
-
-        function pollGamepad() {
-            // Se o app não foi inicializado ainda, pula
-            if (!gamepadStatus) {
-                requestAnimationFrame(pollGamepad);
-                return;
-            }
-            const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
-            for (let gIndex = 0; gIndex < gamepads.length; gIndex++) {
-                const gp = gamepads[gIndex];
-                if (gp && gp.buttons) {
-                    for (let bIndex = 0; bIndex < gp.buttons.length; bIndex++) {
-                        const isPressed = gp.buttons[bIndex].pressed;
-                        const keyState = `g${gIndex}_b${bIndex}`;
-
-                        if (isPressed && !lastGamepadBtnState[keyState]) {
-                            lastGamepadBtnState[keyState] = true;
-
-                            if (mappingTarget !== null) {
-                                finishMapping('gamepad', bIndex, `Botão Arcade USB #${bIndex + 1}`);
-                                break;
-                            }
-
-                            if (arcadeMap1.type === 'gamepad' && arcadeMap1.value === bIndex) {
-                                triggerByTarget(btnTarget1.value);
-                            } else if (arcadeMap2.type === 'gamepad' && arcadeMap2.value === bIndex) {
-                                triggerByTarget(btnTarget2.value);
-                            }
-
-                        } else if (!isPressed) {
-                            lastGamepadBtnState[keyState] = false;
-                        }
-                    }
+                if (response.ok) {
+                    keyValue.textContent = newLicenseKey;
+                    resultBox.style.display = 'flex';
+                    btnGen.textContent = "LICENÇA GERADA COM SUCESSO!";
+                } else {
+                    const err = await response.text();
+                    console.error(err);
+                    alert("Erro ao registrar licença no banco de dados. Tente novamente.");
+                    btnGen.textContent = "GERAR MINHA CHAVE DE LICENÇA";
+                    btnGen.disabled = false;
                 }
+            } catch (e) {
+                console.error(e);
+                alert("Erro de rede. Verifique sua conexão e tente novamente.");
+                btnGen.textContent = "GERAR MINHA CHAVE DE LICENÇA";
+                btnGen.disabled = false;
             }
-            requestAnimationFrame(pollGamepad);
+        }
+
+        function copyLicenseKey() {
+            const keyValue = document.getElementById('keyValue');
+            const hint = document.getElementById('copyHint');
+            navigator.clipboard.writeText(keyValue.textContent);
+            hint.textContent = "Chave copiada para a área de transferência! 👍";
+            setTimeout(() => {
+                hint.textContent = "Clique acima para copiar a chave da licença";
+            }, 2500);
         }
     </script>
 </body>
