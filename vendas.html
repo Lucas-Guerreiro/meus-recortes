@@ -512,10 +512,12 @@
         </div>
     </section>
 
+
+
     <section class="license-generator-section" id="demo">
         <div class="generator-box">
             <h2>⚡ Ativação Automática via PIX</h2>
-            <p class="lock-subtitle">Insira seu e-mail para gerar o Pix do plano mensal (R$ 4,99). A ativação da sua licença é instantânea após o pagamento.</p>
+            <p class="lock-subtitle" id="generatorSubtitle">Insira seu e-mail para gerar o Pix do plano mensal (R$ 4,99). A ativação da sua licença é instantânea após o pagamento.</p>
             
             <div id="paymentForm" style="width: 100%; display: flex; flex-direction: column; gap: 15px; margin-top: 10px;">
                 <input type="email" id="emailInput" class="input-email" placeholder="Digite seu melhor e-mail...">
@@ -532,13 +534,18 @@
             </div>
 
             <!-- Box de Sucesso -->
-            <div class="result-box" id="successBox" style="display: none; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); width: 100%; flex-direction: column; align-items: center; gap: 12px;">
+            <div class="result-box" id="successBox" style="display: none; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); width: 100%; flex-direction: column; align-items: center; gap: 14px;">
                 <div style="font-weight: 800; font-size: 17px; color: #10b981;">🎉 Pagamento Aprovado! Licença Liberada!</div>
                 <div class="license-key-display" id="keyDisplay" onclick="copyLicenseKey()" title="Clique para copiar">
                     <span id="keyValue">MR-XXXX-XXXX-XXXX</span>
                     <span style="font-size: 15px;">📋</span>
                 </div>
-                <div class="copy-hint" id="copyHint">Seu acesso foi ativado. Redirecionando em instantes... ⏱️</div>
+                <div class="copy-hint" id="copyHint">Deseja usar no celular da quadra? Copie a licença acima e insira no aplicativo Android.</div>
+                
+                <div style="width: 100%; display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+                    <a href="index.html" class="btn-pricing" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">ACESSAR PAINEL WEB AGORA</a>
+                    <div class="copy-hint" id="countdownMsg" style="font-size: 11px; opacity: 0.8;">Redirecionamento automático em <span id="countdownVal">20</span> segundos...</div>
+                </div>
             </div>
         </div>
     </section>
@@ -649,6 +656,9 @@
                 paymentForm.style.display = 'none';
                 pixBox.style.display = 'flex';
 
+                // Altera a mensagem de instrução do topo
+                document.getElementById('generatorSubtitle').textContent = "Escaneie o QR Code abaixo com o app do seu banco ou use o botão Copiar Pix Copia e Cola. O sistema será liberado automaticamente após o pagamento.";
+
                 // Monitoramento em tempo real (polling) a cada 3 segundos
                 checkInterval = setInterval(() => {
                     checkPaymentStatus(data.payment_id);
@@ -679,13 +689,25 @@
                     keyValue.textContent = data.license_key;
                     successBox.style.display = 'flex';
 
+                    // Altera a mensagem de instrução do topo para parabenizar e instruir
+                    document.getElementById('generatorSubtitle').textContent = "Parabéns! Sua chave de licença foi gerada e ativada com sucesso. Você pode usá-la no navegador ou no aplicativo Android da quadra.";
+
                     // Salva a nova licença localmente no navegador
                     localStorage.setItem('user_license', data.license_key);
 
-                    // Redireciona para o painel principal após 3.5 segundos
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 3500);
+                    // Inicializa contagem regressiva de 20 segundos na tela
+                    let countdown = 20;
+                    const countdownVal = document.getElementById('countdownVal');
+                    const countdownInterval = setInterval(() => {
+                        countdown--;
+                        if (countdownVal) {
+                            countdownVal.textContent = countdown;
+                        }
+                        if (countdown <= 0) {
+                            clearInterval(countdownInterval);
+                            window.location.href = 'index.html';
+                        }
+                    }, 1000);
                 }
             } catch (e) {
                 console.error("Erro ao consultar status:", e);
