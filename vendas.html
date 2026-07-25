@@ -298,8 +298,6 @@
 
         .result-box {
             width: 100%;
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
             border-radius: 18px;
             padding: 20px;
             display: none;
@@ -329,8 +327,9 @@
         }
 
         .copy-hint {
-            font-size: 11px;
+            font-size: 12px;
             color: #a0a5c0;
+            font-weight: 600;
         }
 
         /* Seção de Preços (Pricing) */
@@ -472,7 +471,7 @@
         </a>
         <nav>
             <a href="#features">Recursos</a>
-            <a href="#demo">Teste Grátis</a>
+            <a href="#demo">Ativação</a>
             <a href="#pricing">Preços</a>
         </nav>
         <a href="index.html" class="btn-header">ACESSAR PAINEL WEB</a>
@@ -482,7 +481,7 @@
         <h1>Transforme sua quadra esportiva em uma <span class="text-gradient">Arena de Replays</span></h1>
         <p>Grave os melhores lances em câmera lenta e publique instantaneamente usando o navegador, aplicativos Android e acionamento via botões de arcade USB na quadra.</p>
         <div class="hero-actions">
-            <a href="#demo" class="btn-primary">GERAR LICENÇA DE TESTE</a>
+            <a href="#demo" class="btn-primary">ATIVAR VIA PIX</a>
             <a href="index.html" class="btn-secondary">ABRIR SISTEMA WEB</a>
         </div>
     </section>
@@ -515,20 +514,31 @@
 
     <section class="license-generator-section" id="demo">
         <div class="generator-box">
-            <h2>🎁 Teste Grátis por 7 Dias</h2>
-            <p class="lock-subtitle">Insira seu e-mail abaixo para gerar instantaneamente uma chave de licença de teste ativa no Supabase.</p>
+            <h2>⚡ Ativação Automática via PIX</h2>
+            <p class="lock-subtitle">Insira seu e-mail para gerar o Pix do plano mensal (R$ 4,99). A ativação da sua licença é instantânea após o pagamento.</p>
             
-            <input type="email" id="emailInput" class="input-email" placeholder="Digite seu melhor e-mail...">
-            <button class="btn-generate" id="btnGen" onclick="generateDemoLicense()">GERAR MINHA CHAVE DE LICENÇA</button>
+            <div id="paymentForm" style="width: 100%; display: flex; flex-direction: column; gap: 15px; margin-top: 10px;">
+                <input type="email" id="emailInput" class="input-email" placeholder="Digite seu melhor e-mail...">
+                <button class="btn-generate" id="btnGen" onclick="generatePixPayment()">GERAR PIX R$ 4,99</button>
+            </div>
 
-            <div class="result-box" id="resultBox">
-                <div style="font-weight: 800; font-size: 15px; color: #10b981;">🎉 Licença de Teste Gerada com Sucesso!</div>
+            <!-- Box do PIX QR Code -->
+            <div class="result-box" id="pixBox" style="display: none; flex-direction: column; align-items: center; gap: 16px; width: 100%;">
+                <div style="font-weight: 800; font-size: 16px; color: #ff9800; animation: pulseText 1.5s infinite;">Aguardando Pagamento do PIX... ⏱️</div>
+                <img id="qrCodeImg" src="" alt="QR Code PIX" style="width: 210px; height: 210px; border: 4px solid white; border-radius: 16px; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+                
+                <button class="btn-pricing" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); font-size: 13px;" onclick="copyPixCode()">📋 Copiar Pix Copia e Cola</button>
+                <div class="copy-hint" id="pixCopyHint">Pague o Pix no seu banco para ativar o sistema na hora!</div>
+            </div>
+
+            <!-- Box de Sucesso -->
+            <div class="result-box" id="successBox" style="display: none; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); width: 100%; flex-direction: column; align-items: center; gap: 12px;">
+                <div style="font-weight: 800; font-size: 17px; color: #10b981;">🎉 Pagamento Aprovado! Licença Liberada!</div>
                 <div class="license-key-display" id="keyDisplay" onclick="copyLicenseKey()" title="Clique para copiar">
-                    <span id="keyValue">TEST-XXXX-XXXX</span>
+                    <span id="keyValue">MR-XXXX-XXXX-XXXX</span>
                     <span style="font-size: 15px;">📋</span>
                 </div>
-                <div class="copy-hint" id="copyHint">Redirecionando você para o aplicativo em instantes... ⏱️</div>
-                <p class="lock-subtitle" style="margin-top: 10px;">Cole esta licença ao abrir o <a href="index.html" style="color: #ff2a2a; font-weight: 700; text-decoration: none;">Painel Web</a> ou no aplicativo Android para desbloquear!</p>
+                <div class="copy-hint" id="copyHint">Seu acesso foi ativado. Redirecionando em instantes... ⏱️</div>
             </div>
         </div>
     </section>
@@ -545,7 +555,7 @@
                     <li>Mapeamento de Botões Arcade</li>
                     <li>Vídeos Locais sem limite de espaço</li>
                 </ul>
-                <a href="#" class="btn-pricing">Assinar Mensal</a>
+                <a href="#demo" class="btn-pricing">Assinar Mensal</a>
             </div>
 
             <div class="pricing-card premium">
@@ -558,7 +568,7 @@
                     <li>Suporte prioritário 24/7</li>
                     <li>Atualizações gratuitas do app Android</li>
                 </ul>
-                <a href="#" class="btn-pricing">Assinar Anual</a>
+                <a href="#demo" class="btn-pricing">Assinar Anual</a>
             </div>
         </div>
     </section>
@@ -568,8 +578,8 @@
     </footer>
 
     <script>
-        const SUPABASE_URL = "https://jmlkgxkvlrtpqukgmdqu.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptbGtneGt2bHJ0cHF1a2dtZHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxOTk3NDUsImV4cCI6MjA5OTc3NTc0NX0.mICpFr2gZfUvKmZb_RDqnw3yoswgKeaV2smZkbhb17w";
+        let checkInterval = null;
+        let pixCode = "";
 
         window.onload = () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -601,24 +611,12 @@
             }
         };
 
-        function generateRandomKey() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let part1 = '';
-            let part2 = '';
-            let part3 = '';
-            for (let i = 0; i < 4; i++) {
-                part1 += chars.charAt(Math.floor(Math.random() * chars.length));
-                part2 += chars.charAt(Math.floor(Math.random() * chars.length));
-                part3 += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return `TEST-${part1}-${part2}-${part3}`;
-        }
-
-        async function generateDemoLicense() {
+        async function generatePixPayment() {
             const emailInput = document.getElementById('emailInput');
             const btnGen = document.getElementById('btnGen');
-            const resultBox = document.getElementById('resultBox');
-            const keyValue = document.getElementById('keyValue');
+            const paymentForm = document.getElementById('paymentForm');
+            const pixBox = document.getElementById('pixBox');
+            const qrCodeImg = document.getElementById('qrCodeImg');
 
             const email = emailInput.value.trim();
             if (!email || !email.includes('@')) {
@@ -627,63 +625,89 @@
                 return;
             }
 
-            btnGen.textContent = "GERANDO...";
+            btnGen.textContent = "GERANDO PIX...";
             btnGen.disabled = true;
 
-            const newLicenseKey = generateRandomKey();
-
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/licenses`, {
+                const response = await fetch('/api/criar-pix', {
                     method: 'POST',
                     headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        license_key: newLicenseKey,
-                        is_active: true,
-                        device_id: null,
-                        activated_at: null
-                    })
+                    body: JSON.stringify({ email: email })
                 });
 
-                if (response.ok) {
-                    keyValue.textContent = newLicenseKey;
-                    resultBox.style.display = 'flex';
-                    btnGen.textContent = "LICENÇA GERADA COM SUCESSO!";
-
-                    // Salva a nova licença localmente no navegador
-                    localStorage.setItem('user_license', newLicenseKey);
-
-                    // Redireciona o usuário para o aplicativo após 3 segundos
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 3000);
-                } else {
-                    const err = await response.text();
-                    console.error(err);
-                    alert("Erro ao registrar licença no banco de dados. Tente novamente.");
-                    btnGen.textContent = "GERAR MINHA CHAVE DE LICENÇA";
-                    btnGen.disabled = false;
+                if (!response.ok) {
+                    throw new Error('Falha ao gerar cobrança Pix');
                 }
+
+                const data = await response.json();
+                
+                pixCode = data.qr_code;
+                qrCodeImg.src = `data:image/jpeg;base64,${data.qr_code_base64}`;
+                
+                paymentForm.style.display = 'none';
+                pixBox.style.display = 'flex';
+
+                // Monitoramento em tempo real (polling) a cada 3 segundos
+                checkInterval = setInterval(() => {
+                    checkPaymentStatus(data.payment_id);
+                }, 3000);
+
             } catch (e) {
                 console.error(e);
-                alert("Erro de rede. Verifique sua conexão e tente novamente.");
-                btnGen.textContent = "GERAR MINHA CHAVE DE LICENÇA";
+                alert("Erro de comunicação com o Mercado Pago. Tente novamente.");
+                btnGen.textContent = "GERAR PIX R$ 4,99";
                 btnGen.disabled = false;
             }
+        }
+
+        async function checkPaymentStatus(paymentId) {
+            try {
+                const response = await fetch(`/api/check-payment?id=${paymentId}`);
+                if (!response.ok) return;
+
+                const data = await response.json();
+
+                if (data.status === 'approved') {
+                    clearInterval(checkInterval);
+                    
+                    document.getElementById('pixBox').style.display = 'none';
+                    const successBox = document.getElementById('successBox');
+                    const keyValue = document.getElementById('keyValue');
+                    
+                    keyValue.textContent = data.license_key;
+                    successBox.style.display = 'flex';
+
+                    // Salva a nova licença localmente no navegador
+                    localStorage.setItem('user_license', data.license_key);
+
+                    // Redireciona para o painel principal após 3.5 segundos
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 3500);
+                }
+            } catch (e) {
+                console.error("Erro ao consultar status:", e);
+            }
+        }
+
+        function copyPixCode() {
+            navigator.clipboard.writeText(pixCode);
+            const hint = document.getElementById('pixCopyHint');
+            hint.textContent = "Código PIX Copiado! 👍";
+            setTimeout(() => {
+                hint.textContent = "Pague o Pix no seu banco para ativar o sistema na hora!";
+            }, 3000);
         }
 
         function copyLicenseKey() {
             const keyValue = document.getElementById('keyValue');
             navigator.clipboard.writeText(keyValue.textContent);
             const hint = document.getElementById('copyHint');
-            const prevText = hint.textContent;
-            hint.textContent = "Chave copiada para a área de transferência! 👍";
+            hint.textContent = "Licença copiada com sucesso! 👍";
             setTimeout(() => {
-                hint.textContent = prevText;
+                hint.textContent = "Seu acesso foi ativado. Redirecionando em instantes... ⏱️";
             }, 2500);
         }
     </script>
