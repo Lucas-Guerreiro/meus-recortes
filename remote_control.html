@@ -939,6 +939,20 @@
                     }
                 }
 
+                // Validação de expiração para chaves oficiais (30 dias desde a primeira ativação)
+                if (key.startsWith("MR-") && license.activated_at) {
+                    const activatedDate = new Date(license.activated_at);
+                    const now = new Date();
+                    const diffTime = Math.abs(now - activatedDate);
+                    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+                    
+                    if (diffDays > 30) {
+                        console.warn("Licença mensal expirada. Desativando no Supabase...");
+                        await deactivateLicenseOnSupabase(key);
+                        return false;
+                    }
+                }
+
                 const dbDeviceId = license.device_id;
                 
                 if (!dbDeviceId || dbDeviceId === "null" || dbDeviceId === "") {
