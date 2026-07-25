@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Recortes - Transforme sua Quadra com Replays Profissionais 🎬</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: #080a10;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* Utilidades de Cores e Gradientes */
+        .text-gradient {
+            background: linear-gradient(135deg, #ff2a2a 0%, #ff7a00 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px 4%;
+            background: rgba(8, 10, 16, 0.85);
+            backdrop-filter: blur(15px);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        nav {
+            display: flex;
+            gap: 30px;
+        }
+
+        nav a {
+            color: #a0a5c0;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.25s ease;
+        }
+
+        nav a:hover {
+            color: #ff2a2a;
+        }
+
+        .btn-header {
+            background: linear-gradient(135deg, #ff2a2a 0%, #b30000 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-size: 13px;
+            font-weight: 800;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(255, 42, 42, 0.35);
+            transition: transform 0.2s ease;
+        }
+
+        .btn-header:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 160px 4% 80px 4%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            background: radial-gradient(circle at top, rgba(255, 42, 42, 0.15) 0%, transparent 60%);
+        }
+
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 900;
+            line-height: 1.1;
+            max-width: 900px;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: #a0a5c0;
+            max-width: 650px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff2a2a 0%, #ff7a00 100%);
+            color: #fff;
+            border: none;
+            border-radius: 16px;
+            padding: 16px 36px;
+            font-size: 16px;
+            font-weight: 800;
+            text-decoration: none;
+            box-shadow: 0 10px 25px rgba(255, 42, 42, 0.4);
+            transition: all 0.25s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(255, 42, 42, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 16px 36px;
+            font-size: 16px;
+            font-weight: 800;
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 4%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 900;
+            margin-bottom: 50px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: rgba(18, 22, 36, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 40px 30px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 42, 42, 0.1) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 42, 42, 0.3);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            font-size: 40px;
+            z-index: 2;
+        }
+
+        .feature-card h3 {
+            font-size: 20px;
+            font-weight: 800;
+            z-index: 2;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: #a0a5c0;
+            line-height: 1.6;
+            z-index: 2;
+        }
+
+        /* Seção do Gerador de Licença */
+        .license-generator-section {
+            padding: 100px 4%;
+            background: radial-gradient(circle at bottom, rgba(255, 122, 0, 0.1) 0%, transparent 60%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .generator-box {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(18, 22, 36, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 32px;
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            text-align: center;
+        }
+
+        .generator-box h2 {
+            font-size: 28px;
+            font-weight: 900;
+        }
+
+        .input-email {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 16px 20px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            outline: none;
+            text-align: center;
+            transition: border-color 0.25s ease;
+        }
+
+        .input-email:focus {
+            border-color: #ff2a2a;
+        }
+
+        .btn-generate {
+            width: 100%;
+            background: linear-gradient(135deg, #ff2a2a 0%, #ff7a00 100%);
+            border: none;
+            border-radius: 16px;
+            padding: 16px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(255, 42, 42, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .btn-generate:hover {
+            transform: scale(1.02);
+        }
+
+        .result-box {
+            width: 100%;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 18px;
+            padding: 20px;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .license-key-display {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #10b981;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .copy-hint {
+            font-size: 11px;
+            color: #a0a5c0;
+        }
+
+        /* Seção de Preços (Pricing) */
+        .pricing {
+            padding: 100px 4%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .pricing-card {
+            background: rgba(18, 22, 36, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 28px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+        }
+
+        .pricing-card.premium {
+            border-color: #ff2a2a;
+            box-shadow: 0 15px 35px rgba(255, 42, 42, 0.15);
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ff2a2a;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .price-title {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .price-value {
+            font-size: 44px;
+            font-weight: 900;
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+
+        .price-value span {
+            font-size: 14px;
+            color: #a0a5c0;
+            font-weight: 400;
+        }
+
+        .price-features {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .price-features li {
+            font-size: 14px;
+            color: #d1d5db;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .price-features li::before {
+            content: '✔️';
+            font-size: 12px;
+        }
+
+        .btn-pricing {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 14px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 800;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+
+        .pricing-card.premium .btn-pricing {
+            background: linear-gradient(135deg, #ff2a2a 0%, #b30000 100%);
+            border: none;
+            box-shadow: 0 6px 20px rgba(255, 42, 42, 0.35);
+        }
+
+        .btn-pricing:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .pricing-card.premium .btn-pricing:hover {
+            box-shadow: 0 10px 25px rgba(255, 42, 42, 0.5);
+        }
+
+        /* Footer */
+        footer {
+            padding: 60px 4%;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            width: 100%;
+            background: #06080d;
+            text-align: center;
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        footer a {
+            color: #ff2a2a;
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="#" class="logo">
+            <span style="font-size: 24px;">🎬</span>
+            <span style="font-weight: 900; color: #fff;">Meus<span class="text-gradient">Recortes</span></span>
+        </a>
+        <nav>
+            <a href="#features">Recursos</a>
+            <a href="#demo">Teste Grátis</a>
+            <a href="#pricing">Preços</a>
+        </nav>
+        <a href="index.html" class="btn-header">ACESSAR PAINEL WEB</a>
+    </header>
+
+    <section class="hero">
+        <h1>Transforme sua quadra esportiva em uma <span class="text-gradient">Arena de Replays</span></h1>
+        <p>Grave os melhores lances em câmera lenta e publique instantaneamente usando o navegador, aplicativos Android e acionamento via botões de arcade USB na quadra.</p>
+        <div class="hero-actions">
+            <a href="#demo" class="btn-primary">GERAR LICENÇA DE TESTE</a>
+            <a href="index.html" class="btn-secondary">ABRIR SISTEMA WEB</a>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <h2 class="section-title">Tecnologia Inteligente para Quadras ⚡</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">🕹️</span>
+                <h3>Mapeamento de Botão Arcade</h3>
+                <p>Mapeie chaves USB e botões de arcade físicos instalados diretamente na parede da quadra para disparo de gravação instantâneo.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">📡</span>
+                <h3>Controle Remoto Multiponto</h3>
+                <p>Controle até duas câmeras remotas de diferentes posições ao mesmo tempo em tempo real com conexões de rede local rápidas.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">💾</span>
+                <h3>Gravação Local & Offline</h3>
+                <p>Todos os vídeos são salvos no celular do operador via IndexedDB no navegador. Sem custos de servidores de nuvem.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">⏱️</span>
+                <h3>Corte Milimétrico do Lance</h3>
+                <p>Defina quantos segundos registrar antes do clique (ex: 10s) e após o clique (ex: 5s). Geração de arquivos estáveis.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="license-generator-section" id="demo">
+        <div class="generator-box">
+            <h2>🎁 Teste Grátis por 7 Dias</h2>
+            <p class="lock-subtitle">Insira seu e-mail abaixo para gerar instantaneamente uma chave de licença de teste ativa no Supabase.</p>
+            
+            <input type="email" id="emailInput" class="input-email" placeholder="Digite seu melhor e-mail...">
+            <button class="btn-generate" id="btnGen" onclick="generateDemoLicense()">GERAR MINHA CHAVE DE LICENÇA</button>
+
+            <div class="result-box" id="resultBox">
+                <div style="font-weight: 800; font-size: 15px; color: #10b981;">🎉 Licença de Teste Gerada com Sucesso!</div>
+                <div class="license-key-display" id="keyDisplay" onclick="copyLicenseKey()" title="Clique para copiar">
+                    <span id="keyValue">TEST-XXXX-XXXX</span>
+                    <span style="font-size: 15px;">📋</span>
+                </div>
+                <div class="copy-hint" id="copyHint">Redirecionando você para o aplicativo em instantes... ⏱️</div>
+                <p class="lock-subtitle" style="margin-top: 10px;">Cole esta licença ao abrir o <a href="index.html" style="color: #ff2a2a; font-weight: 700; text-decoration: none;">Painel Web</a> ou no aplicativo Android para desbloquear!</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="pricing" id="pricing">
+        <h2 class="section-title">Escolha o Plano Ideal para seu Negócio 💎</h2>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <div class="price-title">Plano Mensal</div>
+                <div class="price-value">R$ 4,99<span>/mês</span></div>
+                <ul class="price-features">
+                    <li>1 Licença de Câmera Ativa</li>
+                    <li>Acesso ao Painel Web Pro</li>
+                    <li>Mapeamento de Botões Arcade</li>
+                    <li>Vídeos Locais sem limite de espaço</li>
+                </ul>
+                <a href="#" class="btn-pricing">Assinar Mensal</a>
+            </div>
+
+            <div class="pricing-card premium">
+                <span class="pricing-badge">Mais Popular</span>
+                <div class="price-title">Plano Anual</div>
+                <div class="price-value">R$ 3,99<span>/mês</span></div>
+                <ul class="price-features">
+                    <li>Equivalente a R$ 47,88 por ano</li>
+                    <li>Todas as funcionalidades inclusas</li>
+                    <li>Suporte prioritário 24/7</li>
+                    <li>Atualizações gratuitas do app Android</li>
+                </ul>
+                <a href="#" class="btn-pricing">Assinar Anual</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Meus Recortes. Desenvolvido por <a href="index.html">Lucas Guerreiro</a>. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        const SUPABASE_URL = "https://jmlkgxkvlrtpqukgmdqu.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptbGtneGt2bHJ0cHF1a2dtZHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxOTk3NDUsImV4cCI6MjA5OTc3NTc0NX0.mICpFr2gZfUvKmZb_RDqnw3yoswgKeaV2smZkbhb17w";
+
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('error') === 'expired') {
+                const alertBanner = document.createElement('div');
+                alertBanner.style.cssText = `
+                    position: fixed;
+                    top: 80px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: #ff2a2a;
+                    color: white;
+                    padding: 14px 28px;
+                    border-radius: 16px;
+                    font-weight: 800;
+                    font-size: 13px;
+                    z-index: 200;
+                    box-shadow: 0 10px 30px rgba(255, 42, 42, 0.45);
+                    text-align: center;
+                    width: 90%;
+                    max-width: 500px;
+                    animation: fadeIn 0.4s ease;
+                `;
+                alertBanner.innerHTML = "⚠️ Sua licença expirou, foi desativada ou está em uso em outro aparelho. Adquira uma ativação abaixo!";
+                document.body.appendChild(alertBanner);
+                setTimeout(() => {
+                    alertBanner.style.display = 'none';
+                }, 8000);
+            }
+        };
+
+        function generateRandomKey() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let part1 = '';
+            let part2 = '';
+            let part3 = '';
+            for (let i = 0; i < 4; i++) {
+                part1 += chars.charAt(Math.floor(Math.random() * chars.length));
+                part2 += chars.charAt(Math.floor(Math.random() * chars.length));
+                part3 += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return `TEST-${part1}-${part2}-${part3}`;
+        }
+
+        async function generateDemoLicense() {
+            const emailInput = document.getElementById('emailInput');
+            const btnGen = document.getElementById('btnGen');
+            const resultBox = document.getElementById('resultBox');
+            const keyValue = document.getElementById('keyValue');
+
+            const email = emailInput.value.trim();
+            if (!email || !email.includes('@')) {
+                alert("Por favor, digite um e-mail válido!");
+                emailInput.focus();
+                return;
+            }
+
+            btnGen.textContent = "GERANDO...";
+            btnGen.disabled = true;
+
+            const newLicenseKey = generateRandomKey();
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/licenses`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        license_key: newLicenseKey,
+                        is_active: true,
+                        device_id: null,
+                        activated_at: null
+                    })
+                });
+
+                if (response.ok) {
+                    keyValue.textContent = newLicenseKey;
+                    resultBox.style.display = 'flex';
+                    btnGen.textContent = "LICENÇA GERADA COM SUCESSO!";
+
+                    // Salva a nova licença localmente no navegador
+                    localStorage.setItem('user_license', newLicenseKey);
+
+                    // Redireciona o usuário para o aplicativo após 3 segundos
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 3000);
+                } else {
+                    const err = await response.text();
+                    console.error(err);
+                    alert("Erro ao registrar licença no banco de dados. Tente novamente.");
+                    btnGen.textContent = "GERAR MINHA CHAVE DE LICENÇA";
+                    btnGen.disabled = false;
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Erro de rede. Verifique sua conexão e tente novamente.");
+                btnGen.textContent = "GERAR MINHA CHAVE DE LICENÇA";
+                btnGen.disabled = false;
+            }
+        }
+
+        function copyLicenseKey() {
+            const keyValue = document.getElementById('keyValue');
+            navigator.clipboard.writeText(keyValue.textContent);
+            const hint = document.getElementById('copyHint');
+            const prevText = hint.textContent;
+            hint.textContent = "Chave copiada para a área de transferência! 👍";
+            setTimeout(() => {
+                hint.textContent = prevText;
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
