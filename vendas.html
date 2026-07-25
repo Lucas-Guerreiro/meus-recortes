@@ -514,14 +514,24 @@
 
 
 
+
+
     <section class="license-generator-section" id="demo">
         <div class="generator-box">
-            <h2>⚡ Ativação Automática via PIX</h2>
+            <h2 id="generatorTitle">⚡ Ativação Automática via PIX</h2>
             <p class="lock-subtitle" id="generatorSubtitle">Insira seu e-mail para gerar o Pix do plano mensal (R$ 4,99). A ativação da sua licença é instantânea após o pagamento.</p>
             
             <div id="paymentForm" style="width: 100%; display: flex; flex-direction: column; gap: 15px; margin-top: 10px;">
                 <input type="email" id="emailInput" class="input-email" placeholder="Digite seu melhor e-mail...">
                 <button class="btn-generate" id="btnGen" onclick="generatePixPayment()">GERAR PIX R$ 4,99</button>
+                <div class="copy-hint" style="cursor: pointer; text-decoration: underline; margin-top: 5px;" onclick="showRecoveryForm()">Já possui uma licença ativa? Recupere sua chave aqui.</div>
+            </div>
+
+            <!-- Formulário de Recuperação de Licença -->
+            <div id="recoveryForm" style="width: 100%; display: none; flex-direction: column; gap: 15px; margin-top: 10px;">
+                <input type="email" id="recoveryEmailInput" class="input-email" placeholder="Digite o e-mail cadastrado...">
+                <button class="btn-generate" id="btnRecover" onclick="recoverLicenseKey()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);">RECUPERAR CHAVE</button>
+                <div class="copy-hint" style="cursor: pointer; text-decoration: underline; margin-top: 5px;" onclick="showPaymentForm()">Voltar para a tela de pagamento</div>
             </div>
 
             <!-- Box do PIX QR Code -->
@@ -535,7 +545,7 @@
 
             <!-- Box de Sucesso -->
             <div class="result-box" id="successBox" style="display: none; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); width: 100%; flex-direction: column; align-items: center; gap: 14px;">
-                <div style="font-weight: 800; font-size: 17px; color: #10b981;">🎉 Pagamento Aprovado! Licença Liberada!</div>
+                <div style="font-weight: 800; font-size: 17px; color: #10b981;" id="successTitle">🎉 Pagamento Aprovado! Licença Liberada!</div>
                 <div class="license-key-display" id="keyDisplay" onclick="copyLicenseKey()" title="Clique para copiar">
                     <span id="keyValue">MR-XXXX-XXXX-XXXX</span>
                     <span style="font-size: 15px;">📋</span>
@@ -711,6 +721,87 @@
                 }
             } catch (e) {
                 console.error("Erro ao consultar status:", e);
+            }
+        }
+
+        function showRecoveryForm() {
+            document.getElementById('paymentForm').style.display = 'none';
+            document.getElementById('recoveryForm').style.display = 'flex';
+            document.getElementById('generatorSubtitle').textContent = "Recupere o acesso à sua chave inserindo o e-mail cadastrado na compra.";
+            document.getElementById('generatorTitle').textContent = "🔑 Recuperar Chave de Acesso";
+        }
+
+        function showPaymentForm() {
+            document.getElementById('recoveryForm').style.display = 'none';
+            document.getElementById('paymentForm').style.display = 'flex';
+            document.getElementById('generatorSubtitle').textContent = "Insira seu e-mail para gerar o Pix do plano mensal (R$ 4,99). A ativação da sua licença é instantânea após o pagamento.";
+            document.getElementById('generatorTitle').textContent = "⚡ Ativação Automática via PIX";
+        }
+
+        async function recoverLicenseKey() {
+            const recoveryEmailInput = document.getElementById('recoveryEmailInput');
+            const btnRecover = document.getElementById('btnRecover');
+
+            const email = recoveryEmailInput.value.trim();
+            if (!email || !email.includes('@')) {
+                alert("Por favor, digite um e-mail válido!");
+                recoveryEmailInput.focus();
+                return;
+            }
+
+            btnRecover.textContent = "CONSULTANDO...";
+            btnRecover.disabled = true;
+
+            try {
+                const response = await fetch(`/api/recuperar-chave?email=${encodeURIComponent(email)}`);
+                
+                if (response.status === 404) {
+                    alert("Nenhuma licença ativa encontrada para este e-mail.");
+                    btnRecover.textContent = "RECUPERAR CHAVE";
+                    btnRecover.disabled = false;
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error("Erro na consulta");
+                }
+
+                const data = await response.json();
+
+                document.getElementById('recoveryForm').style.display = 'none';
+                
+                const successBox = document.getElementById('successBox');
+                const keyValue = document.getElementById('keyValue');
+                const successTitle = document.getElementById('successTitle');
+                
+                successTitle.textContent = "🎉 Licença Recuperada com Sucesso!";
+                keyValue.textContent = data.license_key;
+                successBox.style.display = 'flex';
+
+                document.getElementById('generatorSubtitle').textContent = "Parabéns! Sua chave de licença foi recuperada. Você pode usá-la no navegador ou no aplicativo Android da quadra.";
+
+                // Salva localmente
+                localStorage.setItem('user_license', data.license_key);
+
+                // Inicializa contagem regressiva de 20 segundos na tela
+                let countdown = 20;
+                const countdownVal = document.getElementById('countdownVal');
+                const countdownInterval = setInterval(() => {
+                    countdown--;
+                    if (countdownVal) {
+                        countdownVal.textContent = countdown;
+                    }
+                    if (countdown <= 0) {
+                        clearInterval(countdownInterval);
+                        window.location.href = 'index.html';
+                    }
+                }, 1000);
+
+            } catch (e) {
+                console.error(e);
+                alert("Erro de comunicação com o servidor. Tente novamente.");
+                btnRecover.textContent = "RECUPERAR CHAVE";
+                btnRecover.disabled = false;
             }
         }
 
