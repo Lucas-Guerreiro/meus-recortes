@@ -897,9 +897,13 @@
                 if (isValid) {
                     unlockAppLayout(savedLicense);
                     return;
+                } else {
+                    localStorage.removeItem('user_license');
+                    window.location.href = 'vendas.html?error=expired';
+                    return;
                 }
             }
-            lockScreen.style.display = 'flex';
+            window.location.href = 'vendas.html';
         }
 
         async function verifyAndAssociateLicense(key) {
@@ -921,6 +925,20 @@
 
                 if (license.is_active !== true) return false;
 
+                // Validação de expiração para chaves de teste (7 dias desde a criação)
+                if (key.startsWith("TEST-") && license.created_at) {
+                    const createdDate = new Date(license.created_at);
+                    const now = new Date();
+                    const diffTime = Math.abs(now - createdDate);
+                    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+                    
+                    if (diffDays > 7) {
+                        console.warn("Licença de teste expirada. Desativando no Supabase...");
+                        await deactivateLicenseOnSupabase(key);
+                        return false;
+                    }
+                }
+
                 const dbDeviceId = license.device_id;
                 
                 if (!dbDeviceId || dbDeviceId === "null" || dbDeviceId === "") {
@@ -937,6 +955,20 @@
             } catch (_) {
                 return false;
             }
+        }
+
+        async function deactivateLicenseOnSupabase(key) {
+            try {
+                await fetch(`${SUPABASE_URL}/rest/v1/licenses?license_key=eq.${encodeURIComponent(key.trim())}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ is_active: false })
+                });
+            } catch (_) {}
         }
 
         async function associateWebDevice(key, devId) {
