@@ -777,8 +777,6 @@
             const testEmailInput = document.getElementById('testEmailInput');
             const btnGenTest = document.getElementById('btnGenTest');
             const testForm = document.getElementById('testForm');
-            const SUPABASE_URL = "https://jmlkgxkvlrtpqukgmdqu.supabase.co";
-            const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptbGtneGt2bHJ0cHF1a2dtZHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxOTk3NDUsImV4cCI6MjA5OTc3NTc0NX0.mICpFr2gZfUvKmZb_RDqnw3yoswgKeaV2smZkbhb17w";
 
             const email = testEmailInput.value.trim();
             if (!email || !email.includes('@')) {
@@ -790,28 +788,21 @@
             btnGenTest.textContent = "GERANDO...";
             btnGenTest.disabled = true;
 
-            const newLicenseKey = generateRandomKey();
-
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/licenses`, {
+                const response = await fetch('/api/criar-teste', {
                     method: 'POST',
                     headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        license_key: newLicenseKey,
-                        is_active: true,
-                        email: email,
-                        created_at: new Date().toISOString()
-                    })
+                    body: JSON.stringify({ email: email })
                 });
 
                 if (!response.ok) {
-                    throw new Error("Erro ao criar licença no banco de dados.");
+                    throw new Error("Erro na API de teste");
                 }
+
+                const data = await response.json();
+                const newLicenseKey = data.license_key;
 
                 testForm.style.display = 'none';
                 
@@ -819,7 +810,7 @@
                 const keyValue = document.getElementById('keyValue');
                 const successTitle = document.getElementById('successTitle');
                 
-                successTitle.textContent = "🎉 Licença de Teste Liberada!";
+                successTitle.textContent = data.message ? "🎉 " + data.message : "🎉 Licença de Teste Liberada!";
                 keyValue.textContent = newLicenseKey;
                 successBox.style.display = 'flex';
 
