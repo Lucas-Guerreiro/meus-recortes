@@ -119,6 +119,8 @@
         .hero-actions {
             display: flex;
             gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .btn-primary {
@@ -481,6 +483,7 @@
         <p>Grave os melhores lances em câmera lenta e publique instantaneamente usando o navegador, aplicativos Android e acionamento via botões de arcade USB na quadra.</p>
         <div class="hero-actions">
             <a href="#demo" class="btn-primary">ATIVAR VIA PIX</a>
+            <button onclick="scrollToTestForm()" class="btn-secondary" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); border: none; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);">TESTAR GRÁTIS (3 DIAS)</button>
             <a href="index.html" class="btn-secondary">ABRIR SISTEMA WEB</a>
         </div>
     </section>
@@ -931,6 +934,14 @@
             setTimeout(() => {
                 hint.textContent = "Seu acesso foi ativado. Redirecionando em instantes... ⏱️";
             }, 2500);
+        }
+
+        function scrollToTestForm() {
+            showTestForm();
+            const demoSection = document.getElementById('demo');
+            if (demoSection) {
+                demoSection.scrollIntoView({ behavior: 'smooth' });
+            }
         }
     </script>
 </body>
