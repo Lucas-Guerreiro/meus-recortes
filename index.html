@@ -1153,7 +1153,7 @@
 
     <!-- OVERLAY DE BLOQUEIO DE LICENÇA (Sempre Presente Inicialmente) -->
     <div id="lockScreen" class="lock-screen-container">
-        <div class="lock-box">
+        <div class="lock-box" id="lockBoxMain">
             <div class="lock-logo">Meus Recortes 🎬</div>
             <p class="lock-subtitle">Insira uma chave de licença ativa para acessar o sistema web de gravação e controle</p>
             <div class="lock-input-group">
@@ -1161,6 +1161,19 @@
                 <button class="btn-validate-license" id="btnValidate" onclick="validateWebLicense()">VALIDAR ACESSO</button>
             </div>
             <div id="lockErrorMsg" class="lock-error-msg"></div>
+            <div style="margin-top: 15px; font-size: 11px; color: #a0a5c0; cursor: pointer; text-decoration: underline;" onclick="toggleLockScreenRecovery(true)">Esqueceu sua chave? Recupere pelo e-mail</div>
+        </div>
+
+        <!-- Formulário de Recuperação na Tela de Bloqueio -->
+        <div class="lock-box" id="lockBoxRecovery" style="display: none;">
+            <div class="lock-logo">Recuperar Chave 🔑</div>
+            <p class="lock-subtitle">Digite seu e-mail cadastrado para recuperar sua licença ativa.</p>
+            <div class="lock-input-group" style="flex-direction: column; gap: 10px; width: 100%;">
+                <input type="email" id="webRecoveryEmailInput" placeholder="DIGITE SEU E-MAIL..." style="width: 100%; padding: 12px; border-radius: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); color: #fff; text-align: center; font-size: 13px; font-weight: 600; outline: none;">
+                <button class="btn-validate-license" id="btnWebRecover" onclick="recoverWebLicenseKey()" style="width: 100%; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);">RECUPERAR CHAVE</button>
+            </div>
+            <div id="lockRecoveryErrorMsg" class="lock-error-msg" style="font-size: 12px; font-weight: 600; margin-top: 10px;"></div>
+            <div style="margin-top: 15px; font-size: 11px; color: #a0a5c0; cursor: pointer; text-decoration: underline;" onclick="toggleLockScreenRecovery(false)">Voltar para tela de acesso</div>
         </div>
     </div>
 
@@ -1612,6 +1625,82 @@
                 return response.ok;
             } catch (_) {
                 return false;
+            }
+        }
+
+        function toggleLockScreenRecovery(show) {
+            const mainBox = document.getElementById('lockBoxMain');
+            const recoveryBox = document.getElementById('lockBoxRecovery');
+            const errMsg = document.getElementById('lockRecoveryErrorMsg');
+            if (errMsg) errMsg.textContent = '';
+            
+            if (show) {
+                if (mainBox) mainBox.style.display = 'none';
+                if (recoveryBox) recoveryBox.style.display = 'flex';
+            } else {
+                if (mainBox) mainBox.style.display = 'flex';
+                if (recoveryBox) recoveryBox.style.display = 'none';
+            }
+        }
+
+        async function recoverWebLicenseKey() {
+            const emailInput = document.getElementById('webRecoveryEmailInput');
+            const btn = document.getElementById('btnWebRecover');
+            const errorMsg = document.getElementById('lockRecoveryErrorMsg');
+
+            if (!emailInput || !errorMsg) return;
+
+            const email = emailInput.value.trim();
+            if (!email || !email.includes('@')) {
+                errorMsg.style.color = '#ff4444';
+                errorMsg.textContent = "Por favor, digite um e-mail válido.";
+                emailInput.focus();
+                return;
+            }
+
+            errorMsg.style.color = '#8b949e';
+            errorMsg.textContent = "Consultando banco de dados...";
+            btn.disabled = true;
+            btn.textContent = "CONSULTANDO...";
+
+            try {
+                const response = await fetch(`/api/recuperar-chave?email=${encodeURIComponent(email)}`);
+                
+                if (response.status === 404) {
+                    errorMsg.style.color = '#ff4444';
+                    errorMsg.textContent = "Nenhuma licença ativa encontrada para este e-mail.";
+                    btn.disabled = false;
+                    btn.textContent = "RECUPERAR CHAVE";
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error("Erro na consulta");
+                }
+
+                const data = await response.json();
+                
+                errorMsg.style.color = '#10b981';
+                errorMsg.textContent = `Chave encontrada! Preenchendo campo...`;
+
+                // Preenche o campo da tela principal e volta para lá
+                const licenseInput = document.getElementById('webLicenseInput');
+                if (licenseInput) {
+                    licenseInput.value = data.license_key;
+                }
+
+                setTimeout(() => {
+                    toggleLockScreenRecovery(false);
+                    btn.disabled = false;
+                    btn.textContent = "RECUPERAR CHAVE";
+                }, 1500);
+
+            } catch (e) {
+                console.error(e);
+                errorMsg.style.color = '#ff4444';
+                errorMsg.textContent = "Erro ao recuperar. Tente novamente.";
+                btn.disabled = false;
+                btn.textContent = "RECUPERAR CHAVE";
             }
         }
 
