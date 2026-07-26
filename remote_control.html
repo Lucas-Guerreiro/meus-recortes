@@ -1535,11 +1535,11 @@
 
                 if (license.is_active !== true) return false;
 
-                // Validação de expiração para chaves de teste (3 dias desde a criação)
-                if (key.startsWith("TEST-") && license.created_at) {
-                    const createdDate = new Date(license.created_at);
+                // Validação de expiração para chaves de teste (3 dias desde a ativação)
+                if (key.startsWith("TEST-") && license.activated_at) {
+                    const activatedDate = new Date(license.activated_at);
                     const now = new Date();
-                    const diffTime = Math.abs(now - createdDate);
+                    const diffTime = Math.abs(now - activatedDate);
                     const diffDays = diffTime / (1000 * 60 * 60 * 24);
                     
                     if (diffDays > 3) {

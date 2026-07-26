@@ -50,8 +50,7 @@ export default async function handler(req, res) {
                 const existingLicense = data[0];
                 const licenseKey = existingLicense.license_key;
 
-                // Atualiza (PATCH) a licença existente reativando e redefinindo a data de criação/teste
-                // Além disso, limpamos o device_id para que o usuário possa fazer login em nova máquina
+                // Atualiza (PATCH) a licença existente reativando e redefinindo a data de teste no activated_at
                 const patchResponse = await fetch(`${SUPABASE_URL}/rest/v1/licenses?license_key=eq.${licenseKey}`, {
                     method: 'PATCH',
                     headers: {
@@ -61,7 +60,7 @@ export default async function handler(req, res) {
                     },
                     body: JSON.stringify({
                         is_active: true,
-                        created_at: new Date().toISOString(), // Redefine para renovar os 3 dias
+                        activated_at: new Date().toISOString(), // Grava a data no activated_at
                         device_id: null // Reseta device_id para permitir autenticação em nova máquina
                     })
                 });
@@ -93,7 +92,7 @@ export default async function handler(req, res) {
                 license_key: newLicenseKey,
                 is_active: true,
                 email: cleanEmail,
-                created_at: new Date().toISOString()
+                activated_at: new Date().toISOString() // Grava a data inicial no activated_at
             })
         });
 
