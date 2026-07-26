@@ -1,5 +1,5 @@
 // API Vercel Serverless Function: api/check-payment.js
-// Verifica o status do pagamento no Mercado Pago e ativa a licença no Supabase
+// Verifica o status do pagamento no Mercado Pago e ativa/renova a licença no Supabase
 
 export default async function handler(req, res) {
     const { id } = req.query;
@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (!MP_ACCESS_TOKEN || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-        return res.status(500).json({ error: 'Variáveis de ambiente do Supabase ou Mercado Pago ausentes no servidor' });
+        return res.status(500).json({ error: 'Variáveis de ambiente do Supabase ou Mercado Pago ausentes' });
     }
 
     try {
@@ -36,16 +36,10 @@ export default async function handler(req, res) {
             return res.status(200).json({ status: payment.status });
         }
 
-        // 2. Pagamento aprovado! Gerar chave determinística baseada no ID do pagamento
-        // Exemplo: pagamento ID 1234567890 -> MR-1234-5678-90AB
-        const payIdStr = String(id);
-        const p1 = payIdStr.substring(0, 4).padEnd(4, 'X');
-        const p2 = payIdStr.substring(4, 8).padEnd(4, 'Y');
-        const p3 = (payIdStr.substring(8) + 'AB').substring(0, 4).padEnd(4, 'Z');
-        const licenseKey = `MR-${p1}-${p2}-${p3}`.toUpperCase();
+        const customerEmail = payment.payer.email.trim().toLowerCase();
 
-        // 3. Verifica no Supabase se essa licença já foi criada
-        const checkSupabase = await fetch(`${SUPABASE_URL}/rest/v1/licenses?license_key=eq.${licenseKey}&select=*`, {
+        // 2. Busca se este e-mail já possui alguma licença cadastrada (Renovação)
+        const checkUserEmail = await fetch(`${SUPABASE_URL}/rest/v1/licenses?email=eq.${encodeURIComponent(customerEmail)}&select=*`, {
             method: 'GET',
             headers: {
                 'apikey': SUPABASE_SERVICE_ROLE_KEY,
@@ -53,15 +47,58 @@ export default async function handler(req, res) {
             }
         });
 
-        if (checkSupabase.ok) {
-            const data = await checkSupabase.json();
+        if (checkUserEmail.ok) {
+            const data = await checkUserEmail.json();
             if (data && data.length > 0) {
-                // Já existe, apenas retorna ao cliente
-                return res.status(200).json({ status: 'approved', license_key: licenseKey });
+                const existingLicense = data[0];
+                const licenseKey = existingLicense.license_key;
+                
+                // Cálculo de renovação acumulativa:
+                let novoActivatedAt = new Date(); // Valor padrão se estiver expirado
+                
+                if (existingLicense.activated_at) {
+                    const activatedDate = new Date(existingLicense.activated_at);
+                    const now = new Date();
+                    const diffTime = now - activatedDate;
+                    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+                    
+                    if (diffDays < 30) {
+                        // Ainda estava ativo! Acumula os dias restantes
+                        const diasRestantes = 30 - diffDays;
+                        // O novo activated_at é jogado para a frente para acumular os dias restantes
+                        novoActivatedAt = new Date();
+                        novoActivatedAt.setDate(novoActivatedAt.getDate() + diasRestantes);
+                    }
+                }
+
+                // Faz o PATCH atualizando a licença existente no Supabase
+                const updateLicense = await fetch(`${SUPABASE_URL}/rest/v1/licenses?license_key=eq.${licenseKey}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_SERVICE_ROLE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        is_active: true,
+                        activated_at: novoActivatedAt.toISOString()
+                    })
+                });
+
+                if (updateLicense.ok) {
+                    return res.status(200).json({ status: 'approved', license_key: licenseKey, message: 'renovada' });
+                }
             }
         }
 
-        // 4. Se não existe, cria a licença ativa no Supabase
+        // 3. E-mail novo! Gerar chave determinística única baseada no ID do pagamento
+        const payIdStr = String(id);
+        const p1 = payIdStr.substring(0, 4).padEnd(4, 'X');
+        const p2 = payIdStr.substring(4, 8).padEnd(4, 'Y');
+        const p3 = (payIdStr.substring(8) + 'AB').substring(0, 4).padEnd(4, 'Z');
+        const licenseKey = `MR-${p1}-${p2}-${p3}`.toUpperCase();
+
+        // 4. Cria a licença ativa no Supabase associando o e-mail
         const createLicense = await fetch(`${SUPABASE_URL}/rest/v1/licenses`, {
             method: 'POST',
             headers: {
@@ -74,16 +111,17 @@ export default async function handler(req, res) {
                 license_key: licenseKey,
                 is_active: true,
                 device_id: null,
-                activated_at: null
+                activated_at: null,
+                email: customerEmail
             })
         });
 
         if (createLicense.ok) {
-            return res.status(200).json({ status: 'approved', license_key: licenseKey });
+            return res.status(200).json({ status: 'approved', license_key: licenseKey, message: 'criada' });
         } else {
             const errText = await createLicense.text();
-            console.error('Erro ao inserir licença no Supabase:', errText);
-            return res.status(500).json({ error: 'Erro ao persistir licença no banco de dados' });
+            console.error('Erro ao criar licença:', errText);
+            return res.status(500).json({ error: 'Erro ao cadastrar nova licença' });
         }
 
     } catch (error) {

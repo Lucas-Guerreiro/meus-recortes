@@ -6,13 +6,13 @@
     <title>Meus Recortes - Câmera & Galeria Pro 🎬</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Roboto', sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -26,7 +26,6 @@
             overflow-x: hidden;
         }
 
-        /* TELA DE BLOQUEIO DE LICENÇA (Sempre Visível Inicialmente) */
         .lock-screen-container {
             position: fixed;
             inset: 0;
@@ -650,6 +649,504 @@
         .btn-cam1 { background: linear-gradient(135deg, #ff2a2a 0%, #cc0000 100%); box-shadow: 0 0 30px rgba(255, 42, 42, 0.4); }
         .btn-cam2 { background: linear-gradient(135deg, #2196F3 0%, #1565C0 100%); box-shadow: 0 0 30px rgba(33, 150, 243, 0.4); }
         .btn-trigger-remote:active, .btn-trigger-remote.active { transform: scale(0.92); }
+
+        /* --- ESTILOS DO PLACAR AO VIVO (REDESIGN MINIMALISTA) --- */
+        .scoreboard-section-container {
+            width: 94%;
+            max-width: 520px; /* Largura focada para smartphone vertical */
+            margin: 86px auto 30px auto;
+            background: rgba(18, 22, 28, 0.7);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 28px;
+            padding: 24px 20px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        /* Sub-Header de Navegação de Pelada */
+        .pelada-nav-tabs {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
+
+        .pelada-nav-btn {
+            background: transparent;
+            border: none;
+            color: #8b949e;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            cursor: pointer;
+            padding: 6px 4px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .pelada-nav-btn.active {
+            color: #22c55e; /* Verde neon limão sofisticado */
+        }
+
+        .pelada-nav-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -9px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #22c55e;
+            border-radius: 2px;
+        }
+
+        /* Módulo Central: Status AO VIVO e Placar */
+        .match-status-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .live-tag {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            font-size: 9px;
+            font-weight: 900;
+            padding: 3px 8px;
+            border-radius: 12px;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .live-tag-dot {
+            width: 6px;
+            height: 6px;
+            background-color: #22c55e;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #22c55e;
+            animation: pulseGreen 1.6s infinite;
+        }
+
+        @keyframes pulseGreen {
+            0% { transform: scale(0.9); opacity: 0.6; }
+            50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 10px #22c55e; }
+            100% { transform: scale(0.9); opacity: 0.6; }
+        }
+
+        /* Cronômetro Esportivo Fino */
+        .timer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            margin-top: 5px;
+            width: 100%;
+        }
+
+        .timer-display {
+            font-size: 38px;
+            font-weight: 300; /* Fino */
+            letter-spacing: 1.5px;
+            color: #ffffff;
+            font-variant-numeric: tabular-nums;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .timer-display:hover {
+            color: #22c55e;
+        }
+
+        .timer-status-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #8b949e;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .timer-control-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .btn-timer-ctrl {
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            border-radius: 10px;
+            padding: 6px 12px;
+            color: #d1d5db;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-timer-ctrl:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+        }
+
+        /* Placar Principal e Cards */
+        .scoreboard-main-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .score-row-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            padding: 16px 20px;
+        }
+
+        .score-team-lbl {
+            font-size: 14px;
+            font-weight: 800;
+            color: #8b949e;
+            text-transform: uppercase;
+        }
+
+        .score-team-lbl.lbl-left { color: #3b82f6; }
+        .score-team-lbl.lbl-right { color: #eab308; }
+
+        .score-box-modern {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .score-digit-btn {
+            font-size: 48px;
+            font-weight: 900;
+            color: #ffffff;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .score-digit-btn:active {
+            transform: scale(0.92);
+        }
+
+        .score-adjuster-arrows {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .arrow-adjust-btn {
+            background: transparent;
+            border: none;
+            color: #8b949e;
+            font-size: 10px;
+            cursor: pointer;
+            padding: 2px 6px;
+            transition: color 0.15s ease;
+        }
+
+        .arrow-adjust-btn:hover {
+            color: #ffffff;
+        }
+
+        .ball-middle-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .ball-middle-icon:hover {
+            transform: rotate(180deg) scale(1.1);
+        }
+
+        /* Cards de Times Minimalistas */
+        .teams-comparison-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            width: 100%;
+        }
+
+        .team-minimal-card {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: background 0.2s ease;
+        }
+
+        .team-minimal-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .team-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .team-card-title {
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .team-left .team-card-title { color: #3b82f6; }
+        .team-right .team-card-title { color: #eab308; }
+
+        .players-vertical-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-height: 140px;
+        }
+
+        /* Jogadores com Avatares Redondos */
+        .player-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            background: rgba(255, 255, 255, 0.01);
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .player-row:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .player-avatar {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: #21262d;
+        }
+
+        .team-left .player-avatar {
+            border: 1.5px solid #3b82f6;
+            box-shadow: 0 0 6px rgba(59, 130, 246, 0.2);
+        }
+
+        .team-right .player-avatar {
+            border: 1.5px solid #eab308;
+            box-shadow: 0 0 6px rgba(234, 179, 8, 0.2);
+        }
+
+        .player-name-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: #c9d1d9;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-remove-player {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            font-size: 11px;
+            cursor: pointer;
+            opacity: 0;
+            padding: 2px 4px;
+            transition: opacity 0.15s ease;
+        }
+
+        .player-row:hover .btn-remove-player {
+            opacity: 0.8;
+        }
+
+        /* Fila de Espera */
+        .queue-section {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .queue-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .queue-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: #8b949e;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .queue-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .queue-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 14px;
+            font-size: 12px;
+        }
+
+        .queue-team-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 80%;
+        }
+
+        .queue-team-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .dot-red { background-color: #ef4444; box-shadow: 0 0 6px rgba(239, 68, 68, 0.4); }
+        .dot-green { background-color: #10b981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.4); }
+        .dot-blue { background-color: #3b82f6; box-shadow: 0 0 6px rgba(59, 130, 246, 0.4); }
+        .dot-yellow { background-color: #eab308; box-shadow: 0 0 6px rgba(234, 179, 8, 0.4); }
+
+        .queue-team-name {
+            font-weight: 700;
+            color: #c9d1d9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .queue-badge-next {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            font-size: 8px;
+            font-weight: 900;
+            padding: 2px 6px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .btn-queue-action {
+            background: transparent;
+            border: none;
+            color: #8b949e;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 2px 6px;
+            transition: color 0.15s ease;
+        }
+
+        .btn-queue-action:hover {
+            color: #22c55e;
+        }
+
+        /* Rodapé de Regras e Reset */
+        .rules-footer {
+            width: 100%;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rule-text {
+            font-size: 9px;
+            font-weight: 900;
+            color: #8b949e;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .btn-reset-match-discreet {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 4px 8px;
+            opacity: 0.6;
+            transition: opacity 0.2s ease;
+        }
+
+        .btn-reset-match-discreet:hover {
+            opacity: 1;
+        }
+
+        /* Mobile Viewport Fix */
+        @media (max-width: 540px) {
+            .scoreboard-section-container {
+                width: 96%;
+                margin: 76px auto 20px auto;
+                padding: 16px 12px;
+            }
+
+            .teams-comparison-cards {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .score-digit-btn {
+                font-size: 42px;
+            }
+
+            .timer-display {
+                font-size: 32px;
+            }
+            
+            .btn-remove-player {
+                opacity: 0.6;
+            }
+        }
     </style>
 </head>
 <body>
@@ -677,6 +1174,7 @@
             <button class="tab-btn active" id="tabLocal" onclick="switchTab('local')">📱 CÂMERA FULLSCREEN</button>
             <button class="tab-btn" id="tabGallery" onclick="switchTab('gallery')">📼 REPLAYS SALVOS</button>
             <button class="tab-btn" id="tabRemote" onclick="switchTab('remote')">📡 REMOTO (2 CÂMS)</button>
+            <button class="tab-btn" id="tabScoreboard" onclick="switchTab('scoreboard')">⚽ ACOMPANHAMENTO</button>
         </div>
 
         <div id="sectionLocal" class="fullscreen-cam-container" onclick="handleViewportClick(event)">
@@ -842,6 +1340,118 @@
                     <div class="status-msg" id="statusMsg2"></div>
                 </div>
             </div>
+
+            <!-- SEÇÃO PLACAR AO VIVO (REDESIGN ACOMPANHAMENTO MOBILE) -->
+            <div id="sectionScoreboard" class="scoreboard-section-container" style="display: none;">
+                <!-- Sub-Header de Navegação de Pelada -->
+                <div class="pelada-nav-tabs">
+                    <button class="pelada-nav-btn">DASHBOARD</button>
+                    <button class="pelada-nav-btn">CONVOCAÇÃO</button>
+                    <button class="pelada-nav-btn active">ACOMPANHAMENTO</button>
+                    <button class="pelada-nav-btn">RANKING</button>
+                    <button class="pelada-nav-btn">DESEMPENHO</button>
+                </div>
+
+                <!-- Módulo Central: Status AO VIVO -->
+                <div class="match-status-row">
+                    <div class="live-tag">
+                        <span class="live-tag-dot" id="timerPulseDot" style="display: none;"></span>
+                        <span>AO VIVO</span>
+                    </div>
+                </div>
+
+                <!-- Timer e Controles do Cronômetro -->
+                <div class="timer-container">
+                    <div class="timer-display" id="timerVal" onclick="toggleTimer()">00:00 / 15:00</div>
+                    <div class="timer-status-row">
+                        <span id="timerStatusText">Aguardando início</span>
+                    </div>
+                    <div class="timer-control-buttons">
+                        <button class="btn-timer-ctrl" onclick="startTimer()">INICIAR</button>
+                        <button class="btn-timer-ctrl" onclick="pauseTimer()">PAUSAR</button>
+                        <button class="btn-timer-ctrl" onclick="resetTimer()">ZERAR</button>
+                    </div>
+                </div>
+
+                <!-- Placar Central Dominante -->
+                <div class="score-row-display">
+                    <span class="score-team-lbl lbl-left" id="lblTeamLeft">AZUL</span>
+                    <div class="score-box-modern">
+                        <button class="score-digit-btn" onclick="adjustScore('left', 1)" title="Adicionar gol" id="scoreLeftBtn">0</button>
+                        <span class="score-val" id="scoreLeft" style="display:none;">0</span>
+                        <div class="score-adjuster-arrows">
+                            <button class="arrow-adjust-btn" onclick="adjustScore('left', 1)">▲</button>
+                            <button class="arrow-adjust-btn" onclick="adjustScore('left', -1)">▼</button>
+                        </div>
+                    </div>
+
+                    <!-- Ícone de Bola de Futebol Centralizado -->
+                    <div class="ball-middle-icon" id="ballIcon" onclick="adjustScore('left', 1)" title="Gol do Time Azul!">
+                        <svg class="soccer-ball" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                            <path fill="#ffffff" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 48c31.1 0 60.5 7.1 87 19.8l-37 37-50-50v-6.8zm-76 6.8v6.8l-50 50-37-37c26.5-12.7 55.9-19.8 87-19.8zm-119 79l37 37-19.8 87H72c0-31.1 7.1-60.5 19.8-87zm-19.8 135h6.8l87 19.8-37 37c-12.7-26.5-19.8-55.9-19.8-87zm50 126l37-37 50 50v-6.8c-31.1 0-60.5-7.1-87-19.8zm119-6.8v6.8c31.1 0 60.5-7.1 87-19.8l-37-37-50 50zm166-79l-37-37 19.8-87h6.8c0 31.1-7.1 60.5-19.8 87zm19.8-135h-6.8l-87-19.8 37-37c12.7 26.5 19.8 55.9 19.8 87zM256 160c53 0 96 43 96 96s-43 96-96 96-96-43-96-96 96-96 96-96z"/>
+                        </svg>
+                    </div>
+
+                    <div class="score-box-modern">
+                        <button class="score-digit-btn" onclick="adjustScore('right', 1)" title="Adicionar gol" id="scoreRightBtn">0</button>
+                        <span class="score-val" id="scoreRight" style="display:none;">0</span>
+                        <div class="score-adjuster-arrows">
+                            <button class="arrow-adjust-btn" onclick="adjustScore('right', 1)">▲</button>
+                            <button class="arrow-adjust-btn" onclick="adjustScore('right', -1)">▼</button>
+                        </div>
+                    </div>
+                    <span class="score-team-lbl lbl-right" id="lblTeamRight">AMARELO</span>
+                </div>
+
+                <!-- Cards dos Times Lado a Lado -->
+                <div class="teams-comparison-cards">
+                    <!-- Time Esquerdo (Azul) -->
+                    <div class="team-minimal-card team-left" id="cardTeamLeft">
+                        <div class="team-card-header" onclick="editTeamName('left')">
+                            <span class="team-card-title" id="nameTeamLeft">Time Azul</span>
+                            <span class="edit-icon" style="font-size:10px; opacity:0.5;">✏️</span>
+                        </div>
+                        <div class="players-vertical-list" id="listTeamLeft">
+                            <!-- Jogadores com avatares serão carregados aqui -->
+                        </div>
+                        <div class="add-player-row">
+                            <input type="text" id="inputAddPlayerLeft" placeholder="Novo jogador..." onkeydown="if(event.key === 'Enter') addPlayer('left')">
+                            <button onclick="addPlayer('left')">+</button>
+                        </div>
+                    </div>
+
+                    <!-- Time Direito (Amarelo) -->
+                    <div class="team-minimal-card team-right" id="cardTeamRight">
+                        <div class="team-card-header" onclick="editTeamName('right')">
+                            <span class="team-card-title" id="nameTeamRight">Time Amarelo</span>
+                            <span class="edit-icon" style="font-size:10px; opacity:0.5;">✏️</span>
+                        </div>
+                        <div class="players-vertical-list" id="listTeamRight">
+                            <!-- Jogadores com avatares serão carregados aqui -->
+                        </div>
+                        <div class="add-player-row">
+                            <input type="text" id="inputAddPlayerRight" placeholder="Novo jogador..." onkeydown="if(event.key === 'Enter') addPlayer('right')">
+                            <button onclick="addPlayer('right')">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fila de Espera -->
+                <div class="queue-section">
+                    <div class="queue-title-row">
+                        <span class="queue-title">Fila de Espera (Times)</span>
+                    </div>
+                    <div class="queue-list-container" id="queueList">
+                        <!-- Itens da fila carregados dinamicamente -->
+                    </div>
+                </div>
+
+                <!-- Rodapé de Regras e Ações -->
+                <div class="rules-footer">
+                    <span class="rule-text">REGRA PADRÃO: MAIS GOLS VENCE</span>
+                    <button class="btn-reset-match-discreet" onclick="resetMatch()">REINICIAR PLACAR DA PARTIDA 🔄</button>
+                </div>
+            </div>
         </div>
     </template>
 
@@ -897,9 +1507,13 @@
                 if (isValid) {
                     unlockAppLayout(savedLicense);
                     return;
+                } else {
+                    localStorage.removeItem('user_license');
+                    window.location.href = 'vendas.html?error=expired';
+                    return;
                 }
             }
-            lockScreen.style.display = 'flex';
+            window.location.href = 'vendas.html';
         }
 
         async function verifyAndAssociateLicense(key) {
@@ -921,6 +1535,34 @@
 
                 if (license.is_active !== true) return false;
 
+                // Validação de expiração para chaves de teste (7 dias desde a criação)
+                if (key.startsWith("TEST-") && license.created_at) {
+                    const createdDate = new Date(license.created_at);
+                    const now = new Date();
+                    const diffTime = Math.abs(now - createdDate);
+                    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+                    
+                    if (diffDays > 7) {
+                        console.warn("Licença de teste expirada. Desativando no Supabase...");
+                        await deactivateLicenseOnSupabase(key);
+                        return false;
+                    }
+                }
+
+                // Validação de expiração para chaves oficiais (30 dias desde a primeira ativação)
+                if (key.startsWith("MR-") && license.activated_at) {
+                    const activatedDate = new Date(license.activated_at);
+                    const now = new Date();
+                    const diffTime = Math.abs(now - activatedDate);
+                    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+                    
+                    if (diffDays > 30) {
+                        console.warn("Licença mensal expirada. Desativando no Supabase...");
+                        await deactivateLicenseOnSupabase(key);
+                        return false;
+                    }
+                }
+
                 const dbDeviceId = license.device_id;
                 
                 if (!dbDeviceId || dbDeviceId === "null" || dbDeviceId === "") {
@@ -937,6 +1579,20 @@
             } catch (_) {
                 return false;
             }
+        }
+
+        async function deactivateLicenseOnSupabase(key) {
+            try {
+                await fetch(`${SUPABASE_URL}/rest/v1/licenses?license_key=eq.${encodeURIComponent(key.trim())}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ is_active: false })
+                });
+            } catch (_) {}
         }
 
         async function associateWebDevice(key, devId) {
@@ -1062,8 +1718,311 @@
             // Inicializa Banco de Dados IndexedDB
             initIndexedDB();
 
+            // Inicializa Dados do Placar
+            loadScoreboardData();
+
             // Ativa o loop do Gamepad
             requestAnimationFrame(pollGamepad);
+        }
+
+        // --- ESTADOS E CONTROLE DO PLACAR AO VIVO (REDESIGN MOBILE) ---
+        let scoreboardData = {
+            teamLeftName: "Time Azul",
+            teamRightName: "Time Amarelo",
+            scoreLeft: 0,
+            scoreRight: 0,
+            playersLeft: ["Rene", "Lucas Fernandes", "Guerreiro", "Pedro", "Rafinha"],
+            playersRight: ["Willian", "Matheus", "Rodrigo", "Gabriel"],
+            timeLimitSeconds: 900, // 15:00
+            timeElapsedSeconds: 0,
+            timerStatus: "Aguardando início", // "Aguardando início", "Em andamento", "Pausado", "Partida encerrada"
+            queue: [
+                { name: "Time Vermelho", players: ["Felipe", "Bruno", "Thiago", "Vitor"], isNext: true, color: "red" },
+                { name: "Time Verde", players: ["Daniel", "Augusto", "Leo", "Gustavo"], isNext: false, color: "green" }
+            ]
+        };
+
+        let timerInterval = null;
+
+        function toggleTimer() {
+            if (scoreboardData.timerStatus === "Em andamento") {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            scoreboardData.timerStatus = "Em andamento";
+            timerInterval = setInterval(tickTimer, 1000);
+            saveScoreboardData();
+            renderScoreboard();
+        }
+
+        function pauseTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = null;
+            scoreboardData.timerStatus = "Pausado";
+            saveScoreboardData();
+            renderScoreboard();
+        }
+
+        function resetTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = null;
+            scoreboardData.timeElapsedSeconds = 0;
+            scoreboardData.timerStatus = "Aguardando início";
+            saveScoreboardData();
+            renderScoreboard();
+        }
+
+        function tickTimer() {
+            if (scoreboardData.timeElapsedSeconds >= scoreboardData.timeLimitSeconds) {
+                pauseTimer();
+                scoreboardData.timerStatus = "Partida encerrada";
+                if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                alert("Fim da partida! Tempo esgotado.");
+                saveScoreboardData();
+                renderScoreboard();
+                return;
+            }
+            scoreboardData.timeElapsedSeconds += 1;
+            saveScoreboardData();
+            updateTimerUI();
+        }
+
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60).toString().padStart(2, '0');
+            const s = (sec % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function updateTimerUI() {
+            const display = document.getElementById('timerVal');
+            const statusText = document.getElementById('timerStatusText');
+            const pulseDot = document.getElementById('timerPulseDot');
+
+            if (display) {
+                display.textContent = formatTime(scoreboardData.timeElapsedSeconds) + " / " + formatTime(scoreboardData.timeLimitSeconds);
+            }
+            if (statusText) {
+                statusText.textContent = scoreboardData.timerStatus;
+            }
+            if (pulseDot) {
+                if (scoreboardData.timerStatus === "Em andamento") {
+                    pulseDot.style.display = "inline-block";
+                } else {
+                    pulseDot.style.display = "none";
+                }
+            }
+        }
+
+        function loadScoreboardData() {
+            const saved = localStorage.getItem('scoreboard_data');
+            if (saved) {
+                try {
+                    scoreboardData = JSON.parse(saved);
+                } catch (e) {
+                    console.error("Erro ao carregar dados do placar:", e);
+                }
+            }
+            renderScoreboard();
+        }
+
+        function saveScoreboardData() {
+            localStorage.setItem('scoreboard_data', JSON.stringify(scoreboardData));
+        }
+
+        function renderScoreboard() {
+            const nameLeft = document.getElementById('nameTeamLeft');
+            const nameRight = document.getElementById('nameTeamRight');
+            const scoreLVal = document.getElementById('scoreLeft');
+            const scoreRVal = document.getElementById('scoreRight');
+            const scoreLBtn = document.getElementById('scoreLeftBtn');
+            const scoreRBtn = document.getElementById('scoreRightBtn');
+            const listLeft = document.getElementById('listTeamLeft');
+            const listRight = document.getElementById('listTeamRight');
+            const lblLeft = document.getElementById('lblTeamLeft');
+            const lblRight = document.getElementById('lblTeamRight');
+
+            if (!nameLeft || !nameRight || !scoreLVal || !scoreRVal || !listLeft || !listRight) return;
+
+            nameLeft.textContent = scoreboardData.teamLeftName;
+            nameRight.textContent = scoreboardData.teamRightName;
+            scoreLVal.textContent = scoreboardData.scoreLeft;
+            scoreRVal.textContent = scoreboardData.scoreRight;
+            
+            if (scoreLBtn) scoreLBtn.textContent = scoreboardData.scoreLeft;
+            if (scoreRBtn) scoreRBtn.textContent = scoreboardData.scoreRight;
+
+            // Extrai a primeira palavra do nome para o label lateral do placar
+            if (lblLeft) lblLeft.textContent = scoreboardData.teamLeftName.split(' ')[0].toUpperCase();
+            if (lblRight) lblRight.textContent = scoreboardData.teamRightName.split(' ')[0].toUpperCase();
+
+            // Renderizar jogadores da esquerda (Azul) com foto de avatar
+            listLeft.innerHTML = '';
+            scoreboardData.playersLeft.forEach((p, idx) => {
+                const item = document.createElement('div');
+                item.className = 'player-row';
+                item.innerHTML = `
+                    <img class="player-avatar" src="player_avatar.png" alt="Avatar">
+                    <span class="player-name-text">${p}</span>
+                    <button class="btn-remove-player" onclick="removePlayer('left', ${idx})">✕</button>
+                `;
+                listLeft.appendChild(item);
+            });
+
+            // Renderizar jogadores da direita (Amarelo) com foto de avatar
+            listRight.innerHTML = '';
+            scoreboardData.playersRight.forEach((p, idx) => {
+                const item = document.createElement('div');
+                item.className = 'player-row';
+                item.innerHTML = `
+                    <img class="player-avatar" src="player_avatar.png" alt="Avatar">
+                    <span class="player-name-text">${p}</span>
+                    <button class="btn-remove-player" onclick="removePlayer('right', ${idx})">✕</button>
+                `;
+                listRight.appendChild(item);
+            });
+
+            // Renderizar Fila de Espera
+            const queueList = document.getElementById('queueList');
+            if (queueList) {
+                queueList.innerHTML = '';
+                scoreboardData.queue.forEach((q, idx) => {
+                    const item = document.createElement('div');
+                    item.className = 'queue-item';
+                    item.innerHTML = `
+                        <div class="queue-team-info">
+                            <span class="queue-team-dot dot-${q.color}"></span>
+                            <span class="queue-team-name">${q.name} (${q.players.join(', ')})</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            ${q.isNext ? '<span class="queue-badge-next">PRÓXIMO</span>' : ''}
+                            <button class="btn-queue-action" onclick="promoteQueueTeam(${idx})" title="Entrar em campo">➔</button>
+                        </div>
+                    `;
+                    queueList.appendChild(item);
+                });
+            }
+
+            // Atualizar temporizador na UI
+            updateTimerUI();
+        }
+
+        function adjustScore(side, val) {
+            if (side === 'left') {
+                scoreboardData.scoreLeft = Math.max(0, scoreboardData.scoreLeft + val);
+            } else {
+                scoreboardData.scoreRight = Math.max(0, scoreboardData.scoreRight + val);
+            }
+            saveScoreboardData();
+            renderScoreboard();
+            
+            // Efeito visual de rotação e pulso na bola
+            const ball = document.getElementById('ballIcon');
+            if (ball) {
+                ball.style.transform = 'scale(1.2) rotate(360deg)';
+                setTimeout(() => {
+                    ball.style.transform = 'none';
+                }, 300);
+            }
+        }
+
+        function addPlayer(side) {
+            const input = document.getElementById(side === 'left' ? 'inputAddPlayerLeft' : 'inputAddPlayerRight');
+            if (!input) return;
+            const name = input.value.trim();
+            if (!name) return;
+
+            if (side === 'left') {
+                scoreboardData.playersLeft.push(name);
+            } else {
+                scoreboardData.playersRight.push(name);
+            }
+            input.value = '';
+            saveScoreboardData();
+            renderScoreboard();
+        }
+
+        function removePlayer(side, index) {
+            if (side === 'left') {
+                scoreboardData.playersLeft.splice(index, 1);
+            } else {
+                scoreboardData.playersRight.splice(index, 1);
+            }
+            saveScoreboardData();
+            renderScoreboard();
+        }
+
+        function editTeamName(side) {
+            const currentName = side === 'left' ? scoreboardData.teamLeftName : scoreboardData.teamRightName;
+            const newName = prompt("Digite o nome do time:", currentName);
+            if (newName && newName.trim()) {
+                if (side === 'left') {
+                    scoreboardData.teamLeftName = newName.trim();
+                } else {
+                    scoreboardData.teamRightName = newName.trim();
+                }
+                saveScoreboardData();
+                renderScoreboard();
+            }
+        }
+
+        function promoteQueueTeam(idx) {
+            const team = scoreboardData.queue[idx];
+            if (!team) return;
+
+            const side = confirm(`O ${team.name} vai entrar no lugar do ${scoreboardData.teamLeftName} (OK) ou do ${scoreboardData.teamRightName} (Cancelar)?`) ? 'left' : 'right';
+
+            if (side === 'left') {
+                const oldTeam = {
+                    name: scoreboardData.teamLeftName,
+                    players: [...scoreboardData.playersLeft],
+                    isNext: false,
+                    color: scoreboardData.teamLeftName.toLowerCase().includes("azul") ? "blue" : scoreboardData.teamLeftName.toLowerCase().includes("amarelo") ? "yellow" : "red"
+                };
+                scoreboardData.teamLeftName = team.name;
+                scoreboardData.playersLeft = [...team.players];
+                scoreboardData.scoreLeft = 0;
+
+                scoreboardData.queue.splice(idx, 1);
+                scoreboardData.queue.push(oldTeam);
+            } else {
+                const oldTeam = {
+                    name: scoreboardData.teamRightName,
+                    players: [...scoreboardData.playersRight],
+                    isNext: false,
+                    color: scoreboardData.teamRightName.toLowerCase().includes("azul") ? "blue" : scoreboardData.teamRightName.toLowerCase().includes("amarelo") ? "yellow" : "yellow"
+                };
+                scoreboardData.teamRightName = team.name;
+                scoreboardData.playersRight = [...team.players];
+                scoreboardData.scoreRight = 0;
+
+                scoreboardData.queue.splice(idx, 1);
+                scoreboardData.queue.push(oldTeam);
+            }
+
+            scoreboardData.queue.forEach((t, i) => {
+                t.isNext = (i === 0);
+                if (t.name.toLowerCase().includes("vermelho")) t.color = "red";
+                else if (t.name.toLowerCase().includes("verde")) t.color = "green";
+                else if (t.name.toLowerCase().includes("azul")) t.color = "blue";
+                else if (t.name.toLowerCase().includes("amarelo")) t.color = "yellow";
+            });
+
+            saveScoreboardData();
+            renderScoreboard();
+        }
+
+        function resetMatch() {
+            if (confirm("Deseja mesmo zerar o placar da partida?")) {
+                scoreboardData.scoreLeft = 0;
+                scoreboardData.scoreRight = 0;
+                saveScoreboardData();
+                renderScoreboard();
+            }
         }
 
         // Executar verificação inicial
@@ -1222,18 +2181,22 @@
             const tabLocal = document.getElementById('tabLocal');
             const tabGallery = document.getElementById('tabGallery');
             const tabRemote = document.getElementById('tabRemote');
+            const tabScoreboard = document.getElementById('tabScoreboard');
             
             const secLocal = document.getElementById('sectionLocal');
             const secGallery = document.getElementById('sectionGallery');
             const secRemote = document.getElementById('sectionRemote');
+            const secScoreboard = document.getElementById('sectionScoreboard');
 
             tabLocal.classList.remove('active');
             tabGallery.classList.remove('active');
             tabRemote.classList.remove('active');
+            if (tabScoreboard) tabScoreboard.classList.remove('active');
 
             secLocal.style.display = 'none';
             secGallery.style.display = 'none';
             secRemote.style.display = 'none';
+            if (secScoreboard) secScoreboard.style.display = 'none';
 
             if (mode === 'local') {
                 tabLocal.classList.add('active');
@@ -1242,9 +2205,13 @@
                 tabGallery.classList.add('active');
                 secGallery.style.display = 'flex';
                 loadGalleryReplays();
-            } else {
+            } else if (mode === 'remote') {
                 tabRemote.classList.add('active');
                 secRemote.style.display = 'flex';
+            } else if (mode === 'scoreboard') {
+                if (tabScoreboard) tabScoreboard.classList.add('active');
+                if (secScoreboard) secScoreboard.style.display = 'flex';
+                renderScoreboard();
             }
         }
 
