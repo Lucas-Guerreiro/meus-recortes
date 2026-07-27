@@ -1506,6 +1506,7 @@
         let initHeaderChunk = null; 
         let isCamActive = false;
         let isProcessingClip = false;
+        let bufferResetTimeout = null;
 
         let segAntes = parseInt(localStorage.getItem('seg_antes') || '10');
         let segDepois = parseInt(localStorage.getItem('seg_depois') || '5');
@@ -2367,6 +2368,7 @@
                     alert("Erro ao acessar a câmera: " + err.message);
                 }
             } else {
+                if (bufferResetTimeout) clearTimeout(bufferResetTimeout);
                 if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
                 if (webStream) webStream.getTracks().forEach(track => track.stop());
                 videoElem.srcObject = null;
@@ -2378,7 +2380,6 @@
 
         function startBufferRecorder() {
             recordedChunks = [];
-            initHeaderChunk = null;
             let options = { mimeType: 'video/webm' };
             if (MediaRecorder.isTypeSupported('video/mp4')) options = { mimeType: 'video/mp4' };
 
@@ -2386,24 +2387,37 @@
                 mediaRecorder = new MediaRecorder(webStream, options);
                 mediaRecorder.ondataavailable = (e) => {
                     if (e.data && e.data.size > 0) {
-                        const now = Date.now();
-                        if (!initHeaderChunk) {
-                            initHeaderChunk = e.data;
-                        }
                         recordedChunks.push({
                             data: e.data,
-                            timestamp: now
+                            timestamp: Date.now()
                         });
-                        const cutoff = now - 45000;
-                        while (recordedChunks.length > 0 && recordedChunks[0].timestamp < cutoff) {
-                            recordedChunks.shift();
-                        }
                     }
                 };
+                
+                mediaRecorder.onstop = () => {
+                    if (!isProcessingClip && isCamActive) {
+                        startBufferRecorder();
+                    }
+                };
+
                 mediaRecorder.start(1000);
+                
+                scheduleBufferReset();
             } catch (e) {
                 console.error("Erro MediaRecorder:", e);
             }
+        }
+
+        function scheduleBufferReset() {
+            if (bufferResetTimeout) clearTimeout(bufferResetTimeout);
+            const resetDelay = Math.max(30000, (segAntes + 10) * 1000);
+            
+            bufferResetTimeout = setTimeout(() => {
+                if (!isProcessingClip && isCamActive && mediaRecorder && mediaRecorder.state === "recording") {
+                    console.log("Reiniciando buffer de gravação para reciclagem de memória...");
+                    mediaRecorder.stop();
+                }
+            }, resetDelay);
         }
 
         async function triggerLocalClip(e) {
@@ -2420,16 +2434,15 @@
             isProcessingClip = true;
             btn.classList.add('active');
 
-            const clickTime = Date.now();
-            const startTime = clickTime - (segAntes * 1000);
+            if (bufferResetTimeout) clearTimeout(bufferResetTimeout);
 
+            const clickTime = Date.now();
+            
             msg.textContent = `Aguardando ${segDepois}s posteriores... ⏱️`;
             msg.style.color = "#ff9800";
             msg.classList.add('show');
 
             await new Promise(r => setTimeout(r, segDepois * 1000));
-
-            const endTime = Date.now();
 
             btn.classList.remove('active');
             btn.classList.add('fired');
@@ -2439,17 +2452,13 @@
             screenFlash.classList.add('flash');
             setTimeout(() => screenFlash.classList.remove('flash'), 300);
 
-            const chunksFiltrados = recordedChunks.filter(c => c.timestamp >= startTime && c.timestamp <= endTime);
-
-            const finalBlobs = [];
-            if (initHeaderChunk) {
-                finalBlobs.push(initHeaderChunk);
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                mediaRecorder.stop();
             }
-            chunksFiltrados.forEach(c => {
-                if (c.data !== initHeaderChunk) {
-                    finalBlobs.push(c.data);
-                }
-            });
+            
+            await new Promise(r => setTimeout(r, 250));
+
+            const finalBlobs = recordedChunks.map(c => c.data);
 
             const mime = (mediaRecorder && mediaRecorder.mimeType) ? mediaRecorder.mimeType : 'video/mp4';
             const blob = new Blob(finalBlobs, { type: mime });
@@ -2458,15 +2467,17 @@
 
             saveReplayToDB(blob, fileName);
 
-            const duracaoReal = Math.round((endTime - startTime) / 1000);
+            const duracaoReal = Math.round(finalBlobs.length);
             msg.textContent = `Vídeo de ${duracaoReal}s salvo na Galeria! 📼✨`;
             msg.style.color = "#10b981";
+
+            startBufferRecorder();
+            isProcessingClip = false;
 
             setTimeout(() => {
                 btn.classList.remove('fired');
                 btnIcon.textContent = '⚡';
                 btnText.textContent = 'CORTAR REPLAY';
-                isProcessingClip = false;
                 setTimeout(() => msg.classList.remove('show'), 2500);
             }, 1500);
         }
