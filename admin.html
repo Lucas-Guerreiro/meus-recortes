@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - Gestão de Licenças 🎬</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --border-color: #30363d;
+            --text-color: #c9d1d9;
+            --text-white: #ffffff;
+            --primary: #ff2a2a;
+            --primary-gradient: linear-gradient(135deg, #ff2a2a 0%, #b30000 100%);
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text-white);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-auth-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 450px;
+            margin: 100px auto 0 auto;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .admin-auth-box h2 {
+            color: var(--text-white);
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #8b949e;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            color: var(--text-white);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            background: var(--primary-gradient);
+            color: var(--text-white);
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 42, 42, 0.3);
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .btn:hover {
+            transform: scale(1.02);
+            opacity: 0.95;
+        }
+
+        .btn-secondary {
+            background: #21262d;
+            border: 1px solid var(--border-color);
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: #30363d;
+        }
+
+        /* Layout Admin Principal */
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        @media(min-width: 768px) {
+            .admin-grid {
+                grid-template-columns: 320px 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-white);
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Lista e Filtros */
+        .filter-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .filter-input {
+            flex: 1;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            font-weight: 700;
+            color: var(--text-white);
+            background: rgba(255,255,255,0.02);
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge-active {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-inactive {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .badge-test {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .badge-official {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-mini {
+            padding: 6px 10px;
+            font-size: 11px;
+            border-radius: 6px;
+            width: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-copy {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .btn-copy:hover {
+            background: rgba(255,255,255,0.08);
+            color: var(--text-white);
+        }
+
+        .logout-link {
+            font-size: 13px;
+            color: #8b949e;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .logout-link:hover {
+            color: var(--text-white);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TELA DE AUTENTICAÇÃO DO ADMIN -->
+    <div id="authScreen" class="admin-auth-box">
+        <h2>Painel Administrativo 🔑</h2>
+        <p style="font-size: 13px; color: #8b949e; margin-bottom: 20px;">Insira a senha de administrador do Vercel para gerenciar licenças.</p>
+        <div class="input-group">
+            <label>Senha de Acesso</label>
+            <input type="password" id="adminPasswordInput" placeholder="Senha do Admin...">
+        </div>
+        <button class="btn" onclick="authenticateAdmin()">ACESSAR PAINEL</button>
+        <div id="authErrorMsg" style="color: #ff4444; font-size: 13px; font-weight: 700; margin-top: 15px;"></div>
+    </div>
+
+    <!-- PAINEL PRINCIPAL DO ADMIN (Oculto por padrão) -->
+    <div id="adminPanel" class="container" style="display: none;">
+        <header>
+            <h1>Painel Admin - Gestão de Licenças 🎬</h1>
+            <span class="logout-link" onclick="logoutAdmin()">Sair do Painel</span>
+        </header>
+
+        <div class="admin-grid">
+            <!-- Sidebar: Cadastrar Nova -->
+            <div class="card">
+                <div class="card-title">Gerar Licença ➕</div>
+                <div class="input-group">
+                    <label>Tipo de Licença</label>
+                    <select id="newType" onchange="toggleFormKeyHint()">
+                        <option value="MR-" selected>Oficial (30 Dias)</option>
+                        <option value="TEST-">Teste (3 Dias)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>E-mail do Cliente</label>
+                    <input type="email" id="newEmail" placeholder="cliente@email.com...">
+                </div>
+                <div class="input-group">
+                    <label>Chave de Licença (Opcional)</label>
+                    <input type="text" id="newKey" placeholder="Deixe em branco para gerar auto...">
+                    <small style="font-size: 10px; color: #8b949e; display: block; margin-top: 4px;" id="keyFormatHint">Gerará no formato: MR-XXXX-XXXX-XXXX</small>
+                </div>
+                <button class="btn" onclick="createNewLicense()">CADASTRAR / GERAR</button>
+                <div id="createStatusMsg" style="font-size: 13px; font-weight: 700; margin-top: 15px; text-align: center;"></div>
+            </div>
+
+            <!-- Tabela de Licenças -->
+            <div class="card">
+                <div class="card-title">
+                    <span>Licenças Cadastradas</span>
+                    <span style="font-size: 12px; color: #8b949e;" id="totalCount">Total: 0</span>
+                </div>
+
+                <div class="filter-row">
+                    <input type="text" id="searchInput" class="filter-input" placeholder="Pesquisar por licença ou e-mail..." oninput="filterLicensesTable()">
+                    <button class="btn btn-secondary btn-mini" style="width: auto; padding: 0 16px;" onclick="loadLicensesList()">🔄 Atualizar</button>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Chave</th>
+                                <th>Tipo</th>
+                                <th>E-mail</th>
+                                <th>Status</th>
+                                <th>Ativação</th>
+                                <th>Aparelho</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="licensesTableBody">
+                            <tr>
+                                <td colspan="7" style="text-align: center; color: #8b949e; padding: 30px;">Clique em "Atualizar" para listar as licenças.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allLicenses = [];
+
+        window.onload = function() {
+            const savedPass = localStorage.getItem('admin_pass');
+            if (savedPass) {
+                document.getElementById('adminPasswordInput').value = savedPass;
+                authenticateAdmin();
+            }
+        };
+
+        function authenticateAdmin() {
+            const pass = document.getElementById('adminPasswordInput').value.trim();
+            const errorMsg = document.getElementById('authErrorMsg');
+
+            if (!pass) {
+                errorMsg.textContent = "Digite a senha de administrador!";
+                return;
+            }
+
+            errorMsg.textContent = "Autenticando...";
+            errorMsg.style.color = "#8b949e";
+
+            // Tenta carregar a lista de licenças como validação da senha
+            fetch('/api/admin-listar', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${pass}`
+                }
+            })
+            .then(res => {
+                if (res.status === 401) {
+                    throw new Error("Senha de administrador inválida.");
+                }
+                if (!res.ok) {
+                    throw new Error("Erro na comunicação com o servidor.");
+                }
+                return res.json();
+            })
+            .then(data => {
+                // Sucesso!
+                localStorage.setItem('admin_pass', pass);
+                allLicenses = data;
+                
+                document.getElementById('authScreen').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                
+                renderLicensesTable(allLicenses);
+            })
+            .catch(err => {
+                errorMsg.style.color = "#ff4444";
+                errorMsg.textContent = err.message;
+            });
+        }
+
+        function logoutAdmin() {
+            localStorage.removeItem('admin_pass');
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('authScreen').style.display = 'block';
+            document.getElementById('adminPasswordInput').value = '';
+            document.getElementById('authErrorMsg').textContent = '';
+        }
+
+        function loadLicensesList() {
+            const pass = localStorage.getItem('admin_pass');
+            if (!pass) return;
+
+            fetch('/api/admin-listar', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${pass}`
+                }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Erro ao carregar lista");
+                return res.json();
+            })
+            .then(data => {
+                allLicenses = data;
+                renderLicensesTable(allLicenses);
+            })
+            .catch(err => alert(err.message));
+        }
+
+        function renderLicensesTable(licenses) {
+            const tbody = document.getElementById('licensesTableBody');
+            tbody.innerHTML = '';
+
+            document.getElementById('totalCount').textContent = `Total: ${licenses.length}`;
+
+            if (licenses.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #8b949e; padding: 20px;">Nenhuma licença encontrada.</td></tr>`;
+                return;
+            }
+
+            licenses.forEach(lic => {
+                const tr = document.createElement('tr');
+                
+                // Tipo Badge
+                const isTest = lic.license_key.startsWith('TEST-');
+                const typeBadge = isTest 
+                    ? `<span class="badge badge-test">Teste</span>` 
+                    : `<span class="badge badge-official">Oficial</span>`;
+
+                // Status Badge
+                const statusBadge = lic.is_active 
+                    ? `<span class="badge badge-active" style="cursor:pointer;" onclick="toggleLicenseActive('${lic.license_key}', false)">Ativo</span>` 
+                    : `<span class="badge badge-inactive" style="cursor:pointer;" onclick="toggleLicenseActive('${lic.license_key}', true)">Inativo</span>`;
+
+                // Data de ativação
+                let dateStr = "Não ativado";
+                if (lic.activated_at) {
+                    const d = new Date(lic.activated_at);
+                    dateStr = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+                }
+
+                // Device ID
+                const deviceStr = lic.device_id 
+                    ? `<span style="font-size: 11px; font-family: monospace; opacity: 0.8;">${lic.device_id.substring(0, 8)}...</span>` 
+                    : `<span style="color: #8b949e; font-size: 12px;">Livre</span>`;
+
+                // Copiar Chave
+                const keyCell = `
+                    <div style="display: flex; align-items: center; gap: 8px; font-weight: 700;">
+                        <span style="font-family: monospace; color: var(--text-white);">${lic.license_key}</span>
+                        <button class="btn-copy" onclick="copyText('${lic.license_key}', this)" title="Copiar Chave">📋</button>
+                    </div>
+                `;
+
+                // Botão de reset de dispositivo se ativo
+                const resetBtn = lic.device_id 
+                    ? `<button class="btn btn-secondary btn-mini" onclick="resetDevice('${lic.license_key}')" style="padding: 4px 8px;" title="Desvincular Aparelho">🔄 Reset</button>` 
+                    : '';
+
+                // Ações de Linha
+                const actionsCell = `
+                    <div class="action-btns">
+                        ${resetBtn}
+                        <button class="btn btn-danger btn-mini" onclick="deleteLicense('${lic.license_key}')" style="padding: 4px 8px;">🗑️ Excluir</button>
+                    </div>
+                `;
+
+                tr.innerHTML = `
+                    <td>${keyCell}</td>
+                    <td>${typeBadge}</td>
+                    <td>${lic.email || '<span style="color:#8b949e;">-</span>'}</td>
+                    <td>${statusBadge}</td>
+                    <td>${dateStr}</td>
+                    <td>${deviceStr}</td>
+                    <td>${actionsCell}</td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterLicensesTable() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (!query) {
+                renderLicensesTable(allLicenses);
+                return;
+            }
+
+            const filtered = allLicenses.filter(lic => {
+                const keyMatch = lic.license_key.toLowerCase().includes(query);
+                const emailMatch = lic.email && lic.email.toLowerCase().includes(query);
+                return keyMatch || emailMatch;
+            });
+
+            renderLicensesTable(filtered);
+        }
+
+        function toggleFormKeyHint() {
+            const type = document.getElementById('newType').value;
+            const hint = document.getElementById('keyFormatHint');
+            const format = type === 'MR-' ? 'MR-XXXX-XXXX-XXXX' : 'TEST-XXXX-XXXX-XXXX';
+            hint.textContent = `Gerará no formato: ${format}`;
+        }
+
+        function createNewLicense() {
+            const type = document.getElementById('newType').value;
+            const email = document.getElementById('newEmail').value.trim();
+            let key = document.getElementById('newKey').value.trim().toUpperCase();
+            const msg = document.getElementById('createStatusMsg');
+            const pass = localStorage.getItem('admin_pass');
+
+            if (!pass) return;
+
+            // Se a chave for vazia, gera automaticamente
+            if (!key) {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let part1 = '';
+                let part2 = '';
+                let part3 = '';
+                for (let i = 0; i < 4; i++) {
+                    part1 += chars.charAt(Math.floor(Math.random() * chars.length));
+                    part2 += chars.charAt(Math.floor(Math.random() * chars.length));
+                    part3 += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                key = `${type}${part1}-${part2}-${part3}`;
+            } else {
+                // Valida o prefixo inserido
+                if (!key.startsWith(type)) {
+                    key = type + key;
+                }
+            }
+
+            msg.style.color = "#8b949e";
+            msg.textContent = "Salvando...";
+
+            fetch('/api/admin-salvar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${pass}`
+                },
+                body: JSON.stringify({
+                    license_key: key,
+                    email: email || null,
+                    is_active: true
+                })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Erro ao salvar licença");
+                return res.json();
+            })
+            .then(data => {
+                msg.style.color = "var(--success)";
+                msg.textContent = `Licença ${key} cadastrada!`;
+                
+                // Limpa campos
+                document.getElementById('newEmail').value = '';
+                document.getElementById('newKey').value = '';
+
+                // Recarrega lista
+                loadLicensesList();
+            })
+            .catch(err => {
+                msg.style.color = "#ff4444";
+                msg.textContent = err.message;
+            });
+        }
+
+        function toggleLicenseActive(key, active) {
+            const pass = localStorage.getItem('admin_pass');
+            if (!pass) return;
+
+            // Busca a licença na lista local
+            const lic = allLicenses.find(l => l.license_key === key);
+            if (!lic) return;
+
+            fetch('/api/admin-salvar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${pass}`
+                },
+                body: JSON.stringify({
+                    license_key: key,
+                    email: lic.email,
+                    is_active: active,
+                    device_id: lic.device_id,
+                    activated_at: lic.activated_at
+                })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Erro ao alterar status");
+                loadLicensesList();
+            })
+            .catch(err => alert(err.message));
+        }
+
+        function resetDevice(key) {
+            const pass = localStorage.getItem('admin_pass');
+            if (!pass) return;
+
+            if (!confirm(`Deseja realmente desvincular o aparelho da licença ${key}?`)) return;
+
+            const lic = allLicenses.find(l => l.license_key === key);
+            if (!lic) return;
+
+            fetch('/api/admin-salvar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${pass}`
+                },
+                body: JSON.stringify({
+                    license_key: key,
+                    email: lic.email,
+                    is_active: lic.is_active,
+                    device_id: null,
+                    activated_at: lic.activated_at
+                })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Erro ao resetar aparelho");
+                loadLicensesList();
+            })
+            .catch(err => alert(err.message));
+        }
+
+        function deleteLicense(key) {
+            const pass = localStorage.getItem('admin_pass');
+            if (!pass) return;
+
+            if (!confirm(`Tem certeza absoluta que deseja EXCLUIR a licença ${key} do banco de dados?`)) return;
+
+            fetch('/api/admin-salvar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${pass}`
+                },
+                body: JSON.stringify({
+                    license_key: key,
+                    action: 'delete'
+                })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Erro ao deletar licença");
+                loadLicensesList();
+            })
+            .catch(err => alert(err.message));
+        }
+
+        function copyText(text, btn) {
+            navigator.clipboard.writeText(text).then(() => {
+                btn.textContent = "✅";
+                setTimeout(() => btn.textContent = "📋", 1500);
+            });
+        }
+    </script>
+</body>
+</html>
