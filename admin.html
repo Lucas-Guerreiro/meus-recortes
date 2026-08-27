@@ -318,6 +318,7 @@
                     <select id="newType" onchange="toggleFormKeyHint()">
                         <option value="MR-" selected>Oficial (30 Dias)</option>
                         <option value="TEST-">Teste (3 Dias)</option>
+                        <option value="LIFE-">Vitalícia (Ilimitada)</option>
                     </select>
                 </div>
                 <div class="input-group">
@@ -476,10 +477,12 @@
                 const tr = document.createElement('tr');
                 
                 // Tipo Badge
-                const isTest = lic.license_key.startsWith('TEST-');
-                const typeBadge = isTest 
-                    ? `<span class="badge badge-test">Teste</span>` 
-                    : `<span class="badge badge-official">Oficial</span>`;
+                let typeBadge = `<span class="badge badge-official">Oficial</span>`;
+                if (lic.license_key.startsWith('TEST-')) {
+                    typeBadge = `<span class="badge badge-test">Teste</span>`;
+                } else if (lic.license_key.startsWith('LIFE-')) {
+                    typeBadge = `<span class="badge" style="background: rgba(139, 92, 246, 0.15); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.3);">Vitalícia</span>`;
+                }
 
                 // Status Badge
                 const statusBadge = lic.is_active 
@@ -552,7 +555,9 @@
         function toggleFormKeyHint() {
             const type = document.getElementById('newType').value;
             const hint = document.getElementById('keyFormatHint');
-            const format = type === 'MR-' ? 'MR-XXXX-XXXX-XXXX' : 'TEST-XXXX-XXXX-XXXX';
+            let format = 'MR-XXXX-XXXX-XXXX';
+            if (type === 'TEST-') format = 'TEST-XXXX-XXXX-XXXX';
+            else if (type === 'LIFE-') format = 'LIFE-XXXX-XXXX-XXXX';
             hint.textContent = `Gerará no formato: ${format}`;
         }
 
