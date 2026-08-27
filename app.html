@@ -1483,9 +1483,6 @@
     </template>
 
     <script>
-        const SUPABASE_URL = "https://jmlkgxkvlrtpqukgmdqu.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptbGtneGt2bHJ0cHF1a2dtZHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxOTk3NDUsImV4cCI6MjA5OTc3NTc0NX0.mICpFr2gZfUvKmZb_RDqnw3yoswgKeaV2smZkbhb17w";
-
         // Referências iniciais de validação
         const webLicenseInput = document.getElementById('webLicenseInput');
         const lockScreen = document.getElementById('lockScreen');
@@ -1547,96 +1544,14 @@
         async function verifyAndAssociateLicense(key) {
             if (!key) return false;
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/licenses?license_key=eq.${encodeURIComponent(key.trim())}&select=*`, {
-                    method: 'GET',
+                const response = await fetch('/api/validar-licenca', {
+                    method: 'POST',
                     headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
-
-                if (!response.ok) return false;
-                const data = await response.json();
-                if (!data || data.length === 0) return false;
-
-                const license = data[0];
-
-                if (license.is_active !== true) return false;
-
-                // Validação de expiração para chaves de teste (3 dias desde a ativação)
-                if (key.startsWith("TEST-") && license.activated_at) {
-                    const activatedDate = new Date(license.activated_at);
-                    const now = new Date();
-                    const diffTime = Math.abs(now - activatedDate);
-                    const diffDays = diffTime / (1000 * 60 * 60 * 24);
-                    
-                    if (diffDays > 3) {
-                        console.warn("Licença de teste expirada. Desativando no Supabase...");
-                        await deactivateLicenseOnSupabase(key);
-                        return false;
-                    }
-                }
-
-                // Validação de expiração para chaves oficiais (30 dias desde a primeira ativação)
-                if (key.startsWith("MR-") && license.activated_at) {
-                    const activatedDate = new Date(license.activated_at);
-                    const now = new Date();
-                    const diffTime = Math.abs(now - activatedDate);
-                    const diffDays = diffTime / (1000 * 60 * 60 * 24);
-                    
-                    if (diffDays > 30) {
-                        console.warn("Licença mensal expirada. Desativando no Supabase...");
-                        await deactivateLicenseOnSupabase(key);
-                        return false;
-                    }
-                }
-
-                const dbDeviceId = license.device_id;
-                
-                if (!dbDeviceId || dbDeviceId === "null" || dbDeviceId === "") {
-                    const associateRes = await associateWebDevice(key, webDeviceId);
-                    return associateRes;
-                }
-
-                if (dbDeviceId !== webDeviceId) {
-                    console.warn("Licença em uso por outro aparelho:", dbDeviceId);
-                    return false;
-                }
-
-                return true;
-            } catch (_) {
-                return false;
-            }
-        }
-
-        async function deactivateLicenseOnSupabase(key) {
-            try {
-                await fetch(`${SUPABASE_URL}/rest/v1/licenses?license_key=eq.${encodeURIComponent(key.trim())}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ is_active: false })
+                    body: JSON.stringify({ license_key: key, device_id: webDeviceId })
                 });
-            } catch (_) {}
-        }
 
-        async function associateWebDevice(key, devId) {
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/licenses?license_key=eq.${encodeURIComponent(key.trim())}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        device_id: devId,
-                        activated_at: new Date().toISOString()
-                    })
-                });
                 return response.ok;
             } catch (_) {
                 return false;
@@ -1731,38 +1646,29 @@
             btnValidate.disabled = true;
             lockErrorMsg.textContent = "";
 
-            const valid = await verifyAndAssociateLicense(key);
-            btnValidate.textContent = "VALIDAR ACESSO";
-            btnValidate.disabled = false;
+            try {
+                const response = await fetch('/api/validar-licenca', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ license_key: key, device_id: webDeviceId })
+                });
 
-            if (valid) {
-                localStorage.setItem('user_license', key);
-                unlockAppLayout(key);
-            } else {
-                try {
-                    const response = await fetch(`${SUPABASE_URL}/rest/v1/licenses?license_key=eq.${encodeURIComponent(key)}&select=*`, {
-                        method: 'GET',
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                        }
-                    });
+                btnValidate.textContent = "VALIDAR ACESSO";
+                btnValidate.disabled = false;
+
+                if (response.ok) {
+                    localStorage.setItem('user_license', key);
+                    unlockAppLayout(key);
+                } else {
                     const data = await response.json();
-                    if (data && data.length > 0) {
-                        const lic = data[0];
-                        if (lic.is_active !== true) {
-                            lockErrorMsg.textContent = "Esta licença foi desativada pelo administrador!";
-                        } else if (lic.device_id && lic.device_id !== webDeviceId) {
-                            lockErrorMsg.textContent = "Esta licença já está em uso em outro aparelho!";
-                        } else {
-                            lockErrorMsg.textContent = "Falha ao validar a licença. Tente novamente.";
-                        }
-                    } else {
-                        lockErrorMsg.textContent = "Licença inválida ou inexistente!";
-                    }
-                } catch (_) {
-                    lockErrorMsg.textContent = "Chave de licença inválida ou sem conexão!";
+                    lockErrorMsg.textContent = data.error || "Falha ao validar a licença.";
                 }
+            } catch (e) {
+                btnValidate.textContent = "VALIDAR ACESSO";
+                btnValidate.disabled = false;
+                lockErrorMsg.textContent = "Chave de licença inválida ou sem conexão!";
             }
         }
 
@@ -2254,8 +2160,20 @@
             }
         }
 
-        function logoutLicense() {
+        async function logoutLicense() {
             if (confirm("Deseja realmente sair e alterar a chave de licença atual? O sistema será bloqueado e reiniciado.")) {
+                const key = localStorage.getItem('user_license');
+                if (key) {
+                    try {
+                        await fetch('/api/desvincular-dispositivo', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ license_key: key, device_id: webDeviceId })
+                        });
+                    } catch (_) {}
+                }
                 localStorage.removeItem('user_license');
                 window.location.reload();
             }
@@ -2545,13 +2463,10 @@
         async function postCommand(key) {
             if (!key) return false;
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/replay_commands`, {
+                const response = await fetch('/api/postar-comando', {
                     method: 'POST',
                     headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ license_key: key, command: 'TRIGGER_CLIP' })
                 });

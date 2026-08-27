@@ -1,5 +1,7 @@
 // API Vercel Serverless Function: api/admin-salvar.js
-// Cria, atualiza ou deleta uma licença no banco de dados
+// Cria, atualiza ou deleta uma licença no banco de dados Vercel Postgres
+
+import { sql } from '@vercel/postgres';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -19,57 +21,34 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Chave da licença é obrigatória' });
     }
 
-    const SUPABASE_URL = process.env.SUPABASE_URL;
-    const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-        return res.status(500).json({ error: 'Configurações do Supabase ausentes' });
-    }
-
     const cleanEmail = email ? email.trim().toLowerCase() : null;
     const cleanKey = license_key.trim().toUpperCase();
 
     try {
         if (action === 'delete') {
             // Deletar licença
-            const response = await fetch(`${SUPABASE_URL}/rest/v1/licenses?license_key=eq.${encodeURIComponent(cleanKey)}`, {
-                method: 'DELETE',
-                headers: {
-                    'apikey': SUPABASE_SERVICE_ROLE_KEY,
-                    'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
-                }
-            });
-
-            if (!response.ok) {
-                return res.status(500).json({ error: 'Erro ao deletar licença no Supabase' });
-            }
-
+            await sql`
+                DELETE FROM licenses 
+                WHERE license_key = ${cleanKey}
+            `;
             return res.status(200).json({ success: true, message: 'Licença deletada com sucesso' });
         }
 
-        // Upsert (criar ou atualizar)
-        const response = await fetch(`${SUPABASE_URL}/rest/v1/licenses`, {
-            method: 'POST',
-            headers: {
-                'apikey': SUPABASE_SERVICE_ROLE_KEY,
-                'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-                'Content-Type': 'application/json',
-                'Prefer': 'resolution=merge-duplicates'
-            },
-            body: JSON.stringify({
-                license_key: cleanKey,
-                email: cleanEmail,
-                is_active: is_active === true,
-                device_id: device_id === undefined ? null : device_id,
-                activated_at: activated_at || null
-            })
-        });
+        // Upsert (criar ou atualizar) no Postgres
+        const isActiveBool = is_active === true;
+        const finalDeviceId = device_id === undefined ? null : device_id;
+        const finalActivatedAt = activated_at || null;
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error("Erro no upsert:", errorText);
-            return res.status(500).json({ error: 'Erro ao salvar licença no banco de dados' });
-        }
+        await sql`
+            INSERT INTO licenses (license_key, email, is_active, device_id, activated_at)
+            VALUES (${cleanKey}, ${cleanEmail}, ${isActiveBool}, ${finalDeviceId}, ${finalActivatedAt})
+            ON CONFLICT (license_key) 
+            DO UPDATE SET 
+                email = EXCLUDED.email,
+                is_active = EXCLUDED.is_active,
+                device_id = EXCLUDED.device_id,
+                activated_at = EXCLUDED.activated_at
+        `;
 
         return res.status(200).json({ success: true, message: 'Licença salva com sucesso!' });
     } catch (e) {
