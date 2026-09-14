@@ -1670,7 +1670,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ identifier: key, device_id: webDeviceId })
+                    body: JSON.stringify({ license_key: key, identifier: key, email: key, device_id: webDeviceId })
                 });
 
                 return response.ok;
@@ -1706,7 +1706,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ identifier: identifier, device_id: webDeviceId })
+                    body: JSON.stringify({ license_key: identifier, identifier: identifier, email: identifier, device_id: webDeviceId })
                 });
 
                 const data = await response.json();
