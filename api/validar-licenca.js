@@ -24,7 +24,7 @@ export default async function handler(req, res) {
         const { rows } = await sql`
             SELECT * FROM licenses 
             WHERE license_key = ${cleanKey} OR LOWER(email) = ${cleanEmail}
-            ORDER BY is_active DESC, created_at DESC
+            ORDER BY is_active DESC, activated_at DESC NULLS LAST
             LIMIT 1
         `;
 

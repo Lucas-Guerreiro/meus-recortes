@@ -28,14 +28,14 @@ export default async function handler(req, res) {
                     const result = await sql`
                         SELECT * FROM licenses 
                         WHERE license_key = ${licenseKey.toUpperCase()} OR LOWER(email) = ${licenseKey.toLowerCase()}
-                        ORDER BY is_active DESC, created_at DESC LIMIT 1
+                        ORDER BY is_active DESC, activated_at DESC NULLS LAST LIMIT 1
                     `;
                     rows = result.rows;
                 } else if (email) {
                     const result = await sql`
                         SELECT * FROM licenses 
                         WHERE LOWER(email) = ${email.toLowerCase()}
-                        ORDER BY is_active DESC, created_at DESC LIMIT 1
+                        ORDER BY is_active DESC, activated_at DESC NULLS LAST LIMIT 1
                     `;
                     rows = result.rows;
                 } else {
