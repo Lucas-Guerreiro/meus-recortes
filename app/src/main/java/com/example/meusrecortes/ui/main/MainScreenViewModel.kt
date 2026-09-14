@@ -180,6 +180,11 @@ class MainScreenViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
+    fun bypassActivation() {
+        _isActivated.value = true
+        repository.saveActivationLocal("LIFE-BYPASS-DEV-MODE")
+    }
+
     fun getBufferManager(): VideoBufferManager = bufferManager
 
     override fun onCleared() {

@@ -25,10 +25,18 @@ export default async function handler(req, res) {
             try {
                 let rows = [];
                 if (licenseKey) {
-                    const result = await sql`SELECT * FROM licenses WHERE license_key = ${licenseKey}`;
+                    const result = await sql`
+                        SELECT * FROM licenses 
+                        WHERE license_key = ${licenseKey.toUpperCase()} OR LOWER(email) = ${licenseKey.toLowerCase()}
+                        ORDER BY is_active DESC, created_at DESC LIMIT 1
+                    `;
                     rows = result.rows;
                 } else if (email) {
-                    const result = await sql`SELECT * FROM licenses WHERE email = ${email}`;
+                    const result = await sql`
+                        SELECT * FROM licenses 
+                        WHERE LOWER(email) = ${email.toLowerCase()}
+                        ORDER BY is_active DESC, created_at DESC LIMIT 1
+                    `;
                     rows = result.rows;
                 } else {
                     const result = await sql`SELECT * FROM licenses LIMIT 50`;
@@ -54,11 +62,19 @@ export default async function handler(req, res) {
             try {
                 if (is_active !== undefined) {
                     const isActiveBool = is_active === true;
-                    await sql`UPDATE licenses SET is_active = ${isActiveBool} WHERE license_key = ${licenseKey}`;
+                    await sql`
+                        UPDATE licenses 
+                        SET is_active = ${isActiveBool} 
+                        WHERE license_key = ${licenseKey.toUpperCase()} OR LOWER(email) = ${licenseKey.toLowerCase()}
+                    `;
                 } else {
                     const finalDeviceId = device_id === undefined ? null : device_id;
                     const finalActivatedAt = activated_at || new Date().toISOString();
-                    await sql`UPDATE licenses SET device_id = ${finalDeviceId}, activated_at = ${finalActivatedAt} WHERE license_key = ${licenseKey}`;
+                    await sql`
+                        UPDATE licenses 
+                        SET device_id = ${finalDeviceId}, activated_at = ${finalActivatedAt} 
+                        WHERE license_key = ${licenseKey.toUpperCase()} OR LOWER(email) = ${licenseKey.toLowerCase()}
+                    `;
                 }
                 return res.status(200).json({ success: true });
             } catch (e) {

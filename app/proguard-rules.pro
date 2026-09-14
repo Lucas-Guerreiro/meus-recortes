@@ -28,3 +28,7 @@
 
 # Manter classes de configuração (Evitar que SupabaseConfig seja renomeado)
 -keep class com.example.meusrecortes.data.SupabaseConfig { *; }
+
+# Ignorar avisos de classes ausentes de ferramentas de analise estatica Java (como ErrorProne)
+-dontwarn javax.lang.model.**
+-dontwarn com.google.errorprone.annotations.**

@@ -120,6 +120,68 @@
             font-weight: 700;
             color: #ff4444;
             min-height: 18px;
+            line-height: 1.4;
+        }
+
+        .login-tabs-nav {
+            display: flex;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 14px;
+            padding: 4px;
+            margin-top: 4px;
+            gap: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .login-tab-btn {
+            flex: 1;
+            padding: 10px 8px;
+            border: none;
+            background: transparent;
+            color: #8b949e;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .login-tab-btn.active {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-tab-btn:hover:not(.active) {
+            color: #c9d1d9;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .login-sales-banner {
+            width: 100%;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(5, 150, 105, 0.05) 100%);
+            border: 1px dashed rgba(16, 185, 129, 0.35);
+            border-radius: 14px;
+            padding: 12px;
+            margin-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .login-sales-banner:hover {
+            border-color: #10b981;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.1) 100%);
+            transform: translateY(-1px);
         }
 
         /* ESTILOS DO APP (SÓ ENTRAM EM AÇÃO APÓS DESBLOQUEADO) */
@@ -1138,18 +1200,48 @@
 </head>
 <body>
 
-    <!-- OVERLAY DE BLOQUEIO DE LICENÇA (Sempre Presente Inicialmente) -->
+    <!-- OVERLAY DE LOGIN UNIFICADO E CONTROLE DE ACESSO -->
     <div id="lockScreen" class="lock-screen-container">
         <div class="lock-box" id="lockBoxMain">
             <div class="lock-logo">Meus Recortes 🎬</div>
-            <p class="lock-subtitle">Insira uma chave de licença ativa para acessar o sistema web de gravação e controle</p>
-            <div class="lock-input-group">
-                <input type="text" id="webLicenseInput" placeholder="DIGITE SUA LICENÇA...">
-                <button class="btn-validate-license" id="btnValidate" onclick="validateWebLicense()">VALIDAR ACESSO</button>
+            <p class="lock-subtitle" style="margin-bottom: 2px;">Acesse o sistema de gravação inteligente e replays</p>
+
+            <!-- Abas de Alternância: Usuário / Gestor -->
+            <div class="login-tabs-nav">
+                <button type="button" class="login-tab-btn active" id="tabUserBtn" onclick="switchLoginTab('user')">
+                    <span>👤</span> Sou Usuário
+                </button>
+                <button type="button" class="login-tab-btn" id="tabManagerBtn" onclick="switchLoginTab('manager')">
+                    <span>🔑</span> Sou Gestor
+                </button>
             </div>
-            <div id="lockErrorMsg" class="lock-error-msg"></div>
-            <div style="margin-top: 15px; font-size: 11px; color: #a0a5c0; cursor: pointer; text-decoration: underline;" onclick="toggleLockScreenRecovery(true)">Esqueceu sua chave? Recupere pelo e-mail</div>
-            <div style="margin-top: 8px; font-size: 11px; color: #a0a5c0; opacity: 0.6;"><a href="admin.html" style="color: inherit; text-decoration: underline;">Painel Admin 🔑</a></div>
+
+            <!-- FORMULÁRIO 1: USUÁRIO -->
+            <div id="loginFormUser" style="width: 100%; display: flex; flex-direction: column; gap: 10px;">
+                <div class="lock-input-group" style="margin-top: 5px;">
+                    <input type="text" id="webLicenseInput" placeholder="DIGITE SEU E-MAIL OU LICENÇA..." onkeypress="if(event.key === 'Enter') validateWebLicense()">
+                    <button class="btn-validate-license" id="btnValidate" onclick="validateWebLicense()">ENTRAR NO SISTEMA</button>
+                </div>
+                <div id="lockErrorMsg" class="lock-error-msg"></div>
+
+                <!-- Banner para Novos Cadastrados ou Sem Licença -->
+                <a href="vendas.html" class="login-sales-banner">
+                    <span style="font-size: 12px; font-weight: 800; color: #10b981; letter-spacing: 0.5px;">NOVO POR AQUI? EXPERIMENTE GRÁTIS 🚀</span>
+                    <span style="font-size: 11px; color: #a0a5c0;">Adquira sua licença oficial ou ative seu teste de 3 dias agora</span>
+                </a>
+
+                <div style="margin-top: 6px; font-size: 11px; color: #a0a5c0; cursor: pointer; text-decoration: underline;" onclick="toggleLockScreenRecovery(true)">Esqueceu sua chave? Recupere pelo e-mail</div>
+            </div>
+
+            <!-- FORMULÁRIO 2: GESTOR (ADMIN) -->
+            <div id="loginFormManager" style="width: 100%; display: none; flex-direction: column; gap: 10px;">
+                <p style="font-size: 12px; color: #a0a5c0; margin-top: 4px;">Acesso restrito para criação, ativação e gerenciamento de licenças.</p>
+                <div class="lock-input-group" style="margin-top: 5px;">
+                    <input type="password" id="managerPasswordInput" placeholder="DIGITE A SENHA DO GESTOR..." onkeypress="if(event.key === 'Enter') handleManagerLogin()">
+                    <button class="btn-validate-license" id="btnManagerLogin" onclick="handleManagerLogin()" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);">ACESSAR PAINEL DO GESTOR</button>
+                </div>
+                <div id="managerErrorMsg" class="lock-error-msg"></div>
+            </div>
         </div>
 
         <!-- Formulário de Recuperação na Tela de Bloqueio -->
@@ -1157,7 +1249,7 @@
             <div class="lock-logo">Recuperar Chave 🔑</div>
             <p class="lock-subtitle">Digite seu e-mail cadastrado para recuperar sua licença ativa.</p>
             <div class="lock-input-group" style="flex-direction: column; gap: 10px; width: 100%;">
-                <input type="email" id="webRecoveryEmailInput" placeholder="DIGITE SEU E-MAIL..." style="width: 100%; padding: 12px; border-radius: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); color: #fff; text-align: center; font-size: 13px; font-weight: 600; outline: none;">
+                <input type="email" id="webRecoveryEmailInput" placeholder="DIGITE SEU E-MAIL..." style="width: 100%; padding: 12px; border-radius: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); color: #fff; text-align: center; font-size: 13px; font-weight: 600; outline: none;" onkeypress="if(event.key === 'Enter') recoverWebLicenseKey()">
                 <button class="btn-validate-license" id="btnWebRecover" onclick="recoverWebLicenseKey()" style="width: 100%; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);">RECUPERAR CHAVE</button>
             </div>
             <div id="lockRecoveryErrorMsg" class="lock-error-msg" style="font-size: 12px; font-weight: 600; margin-top: 10px;"></div>
@@ -1524,7 +1616,32 @@
 
         const webDeviceId = getWebDeviceId();
 
-        /* --- CONTROLE DE ACESSO POR LICENÇA NA WEB (VÍNCULO DE APARELHO ESTRITO) --- */
+        /* --- CONTROLE DE ACESSO E LOGIN UNIFICADO NA WEB --- */
+        function switchLoginTab(tab) {
+            const tabUser = document.getElementById('tabUserBtn');
+            const tabManager = document.getElementById('tabManagerBtn');
+            const formUser = document.getElementById('loginFormUser');
+            const formManager = document.getElementById('loginFormManager');
+            const userErr = document.getElementById('lockErrorMsg');
+            const mgrErr = document.getElementById('managerErrorMsg');
+            if (userErr) userErr.textContent = '';
+            if (mgrErr) mgrErr.textContent = '';
+
+            if (tab === 'user') {
+                if (tabUser) tabUser.classList.add('active');
+                if (tabManager) tabManager.classList.remove('active');
+                if (formUser) formUser.style.display = 'flex';
+                if (formManager) formManager.style.display = 'none';
+                setTimeout(() => document.getElementById('webLicenseInput')?.focus(), 50);
+            } else {
+                if (tabManager) tabManager.classList.add('active');
+                if (tabUser) tabUser.classList.remove('active');
+                if (formUser) formUser.style.display = 'none';
+                if (formManager) formManager.style.display = 'flex';
+                setTimeout(() => document.getElementById('managerPasswordInput')?.focus(), 50);
+            }
+        }
+
         async function checkWebLicense() {
             const savedLicense = localStorage.getItem('user_license');
             if (savedLicense) {
@@ -1534,11 +1651,15 @@
                     return;
                 } else {
                     localStorage.removeItem('user_license');
-                    window.location.href = 'vendas.html?error=expired';
+                    const errorMsg = document.getElementById('lockErrorMsg');
+                    if (errorMsg) {
+                        errorMsg.style.color = '#f59e0b';
+                        errorMsg.textContent = 'Sua licença anterior expirou ou não é válida para este aparelho.';
+                    }
                     return;
                 }
             }
-            window.location.href = 'vendas.html';
+            // Se não houver licença salva, mantém a tela de login aberta
         }
 
         async function verifyAndAssociateLicense(key) {
@@ -1549,7 +1670,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ license_key: key, device_id: webDeviceId })
+                    body: JSON.stringify({ identifier: key, device_id: webDeviceId })
                 });
 
                 return response.ok;
@@ -1558,93 +1679,26 @@
             }
         }
 
-        function toggleLockScreenRecovery(show) {
-            const mainBox = document.getElementById('lockBoxMain');
-            const recoveryBox = document.getElementById('lockBoxRecovery');
-            const errMsg = document.getElementById('lockRecoveryErrorMsg');
-            if (errMsg) errMsg.textContent = '';
-            
-            if (show) {
-                if (mainBox) mainBox.style.display = 'none';
-                if (recoveryBox) recoveryBox.style.display = 'flex';
-            } else {
-                if (mainBox) mainBox.style.display = 'flex';
-                if (recoveryBox) recoveryBox.style.display = 'none';
-            }
-        }
-
-        async function recoverWebLicenseKey() {
-            const emailInput = document.getElementById('webRecoveryEmailInput');
-            const btn = document.getElementById('btnWebRecover');
-            const errorMsg = document.getElementById('lockRecoveryErrorMsg');
-
-            if (!emailInput || !errorMsg) return;
-
-            const email = emailInput.value.trim();
-            if (!email || !email.includes('@')) {
-                errorMsg.style.color = '#ff4444';
-                errorMsg.textContent = "Por favor, digite um e-mail válido.";
-                emailInput.focus();
-                return;
-            }
-
-            errorMsg.style.color = '#8b949e';
-            errorMsg.textContent = "Consultando banco de dados...";
-            btn.disabled = true;
-            btn.textContent = "CONSULTANDO...";
-
-            try {
-                const response = await fetch(`/api/recuperar-chave?email=${encodeURIComponent(email)}`);
-                
-                if (response.status === 404) {
-                    errorMsg.style.color = '#ff4444';
-                    errorMsg.textContent = "Nenhuma licença ativa encontrada para este e-mail.";
-                    btn.disabled = false;
-                    btn.textContent = "RECUPERAR CHAVE";
-                    return;
-                }
-
-                if (!response.ok) {
-                    throw new Error("Erro na consulta");
-                }
-
-                const data = await response.json();
-                
-                errorMsg.style.color = '#10b981';
-                errorMsg.textContent = `Chave encontrada! Preenchendo campo...`;
-
-                // Preenche o campo da tela principal e volta para lá
-                const licenseInput = document.getElementById('webLicenseInput');
-                if (licenseInput) {
-                    licenseInput.value = data.license_key;
-                }
-
-                setTimeout(() => {
-                    toggleLockScreenRecovery(false);
-                    btn.disabled = false;
-                    btn.textContent = "RECUPERAR CHAVE";
-                }, 1500);
-
-            } catch (e) {
-                console.error(e);
-                errorMsg.style.color = '#ff4444';
-                errorMsg.textContent = "Erro ao recuperar. Tente novamente.";
-                btn.disabled = false;
-                btn.textContent = "RECUPERAR CHAVE";
-            }
-        }
-
         async function validateWebLicense() {
-            const key = webLicenseInput.value.trim().toUpperCase();
+            const input = document.getElementById('webLicenseInput');
+            const btn = document.getElementById('btnValidate');
+            const errorMsg = document.getElementById('lockErrorMsg');
 
-            if (!key) {
-                lockErrorMsg.textContent = "Digite uma chave de licença!";
+            if (!input || !btn || !errorMsg) return;
+
+            const identifier = input.value.trim();
+
+            if (!identifier) {
+                errorMsg.style.color = "#ff4444";
+                errorMsg.textContent = "Digite seu e-mail ou chave de licença!";
+                input.focus();
                 return;
             }
 
-            btnValidate.textContent = "VERIFICANDO...";
-            btnValidate.disabled = true;
-            lockErrorMsg.textContent = "";
+            btn.textContent = "VERIFICANDO...";
+            btn.disabled = true;
+            errorMsg.style.color = "#8b949e";
+            errorMsg.textContent = "Consultando cadastro e dispositivo...";
 
             try {
                 const response = await fetch('/api/validar-licenca', {
@@ -1652,23 +1706,106 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ license_key: key, device_id: webDeviceId })
+                    body: JSON.stringify({ identifier: identifier, device_id: webDeviceId })
                 });
 
-                btnValidate.textContent = "VALIDAR ACESSO";
-                btnValidate.disabled = false;
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    // Usuário cadastrado com licença aplicada a seu aparelho!
+                    errorMsg.style.color = "#10b981";
+                    errorMsg.textContent = "Acesso autorizado! Entrando no sistema...";
+                    localStorage.setItem('user_license', data.license_key);
+                    setTimeout(() => {
+                        unlockAppLayout(data.license_key);
+                    }, 400);
+                    return;
+                }
+
+                // Novo cadastrado ou sem licença ativa -> Direciona para a tela de vendas
+                if (data.reason === 'NO_ACTIVE_LICENSE' || data.reason === 'EXPIRED' || response.status === 404) {
+                    errorMsg.style.color = "#f59e0b";
+                    errorMsg.textContent = (data.error || "Nenhuma licença ativa encontrada.") + " Redirecionando para a tela de vendas...";
+                    btn.textContent = "REDIRECIONANDO...";
+                    setTimeout(() => {
+                        window.location.href = 'vendas.html' + (data.reason === 'EXPIRED' ? '?error=expired' : '');
+                    }, 1200);
+                    return;
+                }
+
+                // Licença vinculada a outro aparelho
+                if (data.reason === 'DEVICE_MISMATCH') {
+                    errorMsg.style.color = "#ff4444";
+                    errorMsg.textContent = "Esta licença já está em uso em outro aparelho! Solicite ao gestor a liberação.";
+                    btn.textContent = "ENTRAR NO SISTEMA";
+                    btn.disabled = false;
+                    return;
+                }
+
+                errorMsg.style.color = "#ff4444";
+                errorMsg.textContent = data.error || "Falha ao validar o acesso.";
+                btn.textContent = "ENTRAR NO SISTEMA";
+                btn.disabled = false;
+            } catch (e) {
+                btn.textContent = "ENTRAR NO SISTEMA";
+                btn.disabled = false;
+                errorMsg.style.color = "#ff4444";
+                errorMsg.textContent = "Sem conexão com o servidor!";
+            }
+        }
+
+        async function handleManagerLogin() {
+            const passInput = document.getElementById('managerPasswordInput');
+            const btn = document.getElementById('btnManagerLogin');
+            const errorMsg = document.getElementById('managerErrorMsg');
+
+            if (!passInput || !btn || !errorMsg) return;
+
+            const pass = passInput.value.trim();
+            if (!pass) {
+                errorMsg.style.color = "#ff4444";
+                errorMsg.textContent = "Digite a senha do gestor!";
+                passInput.focus();
+                return;
+            }
+
+            btn.textContent = "AUTENTICANDO...";
+            btn.disabled = true;
+            errorMsg.style.color = "#8b949e";
+            errorMsg.textContent = "Verificando credenciais do gestor...";
+
+            try {
+                const response = await fetch('/api/admin-listar', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${pass}`
+                    }
+                });
 
                 if (response.ok) {
-                    localStorage.setItem('user_license', key);
-                    unlockAppLayout(key);
-                } else {
-                    const data = await response.json();
-                    lockErrorMsg.textContent = data.error || "Falha ao validar a licença.";
+                    errorMsg.style.color = "#10b981";
+                    errorMsg.textContent = "Gestor autenticado! Abrindo painel de licenças...";
+                    localStorage.setItem('admin_pass', pass);
+                    setTimeout(() => {
+                        window.location.href = 'admin.html';
+                    }, 400);
+                    return;
                 }
+
+                if (response.status === 401) {
+                    errorMsg.style.color = "#ff4444";
+                    errorMsg.textContent = "Senha de gestor inválida.";
+                } else {
+                    errorMsg.style.color = "#ff4444";
+                    errorMsg.textContent = "Erro na comunicação com o servidor.";
+                }
+                btn.textContent = "ACESSAR PAINEL DO GESTOR";
+                btn.disabled = false;
             } catch (e) {
-                btnValidate.textContent = "VALIDAR ACESSO";
-                btnValidate.disabled = false;
-                lockErrorMsg.textContent = "Chave de licença inválida ou sem conexão!";
+                btn.textContent = "ACESSAR PAINEL DO GESTOR";
+                btn.disabled = false;
+                errorMsg.style.color = "#ff4444";
+                errorMsg.textContent = "Sem conexão com o servidor!";
             }
         }
 

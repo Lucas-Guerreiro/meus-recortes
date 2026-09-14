@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.os.Build
 import android.widget.MediaController
 import android.widget.Toast
@@ -44,6 +46,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -111,6 +116,7 @@ fun MainScreen(
     val activeVideoUri by viewModel.activeVideoUri.collectAsState()
 
     var showGallery by remember { mutableStateOf(false) }
+    var showAdminWebView by remember { mutableStateOf(false) }
     var showSettingsDialog by remember { mutableStateOf(false) }
     var hasPermissions by remember {
         mutableStateOf(
@@ -140,8 +146,43 @@ fun MainScreen(
         }
     }
 
-    // Se o aplicativo não estiver ativado, exibe a tela de ativação
+    // Se o aplicativo não estiver ativado, exibe a tela de ativação ou a WebView do Admin
     if (!isActivated) {
+        if (showAdminWebView) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFF281545))
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Painel Administrativo 🔑", color = Color.White, fontWeight = FontWeight.Bold)
+                    Button(
+                        onClick = { showAdminWebView = false },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFBA68C8))
+                    ) {
+                        Text("Voltar", color = Color.White)
+                    }
+                }
+                
+                AndroidView(
+                    factory = { ctx ->
+                        WebView(ctx).apply {
+                            settings.javaScriptEnabled = true
+                            settings.domStorageEnabled = true
+                            webViewClient = WebViewClient()
+                            webChromeClient = android.webkit.WebChromeClient()
+                            loadUrl("https://meusrecortes.vercel.app/admin.html")
+                        }
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+            return
+        }
+
         ActivationScreen(
             deviceId = deviceId,
             isActivating = isActivating,
@@ -150,6 +191,13 @@ fun MainScreen(
                 viewModel.activateApp(key) {
                     Toast.makeText(context, "Aplicativo ativado com sucesso!", Toast.LENGTH_SHORT).show()
                 }
+            },
+            onBypass = {
+                viewModel.bypassActivation()
+                Toast.makeText(context, "Entrando em Modo Desenvolvedor...", Toast.LENGTH_SHORT).show()
+            },
+            onAdminClick = {
+                showAdminWebView = true
             }
         )
         return
@@ -339,10 +387,13 @@ fun ActivationScreen(
     deviceId: String,
     isActivating: Boolean,
     activationError: String?,
-    onActivate: (String) -> Unit
+    onActivate: (String) -> Unit,
+    onBypass: () -> Unit,
+    onAdminClick: () -> Unit
 ) {
     var licenseInput by remember { mutableStateOf("") }
     val clipboardManager = LocalClipboardManager.current
+    val context = LocalContext.current
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -374,7 +425,7 @@ fun ActivationScreen(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = "Insira sua chave de licença Supabase para desbloquear o aplicativo de replays.",
+                    text = "Insira sua chave de licença para desbloquear o aplicativo de replays.",
                     fontSize = 14.sp,
                     color = Color.LightGray,
                     textAlign = TextAlign.Center,
@@ -418,9 +469,9 @@ fun ActivationScreen(
                 // Input da Licença
                 OutlinedTextField(
                     value = licenseInput,
-                    onValueChange = { licenseInput = it.uppercase() },
-                    label = { Text("Chave de Licença") },
-                    placeholder = { Text("REPLAY-XXXX-XXXX") },
+                    onValueChange = { licenseInput = it.trim() },
+                    label = { Text("E-mail ou Chave de Licença") },
+                    placeholder = { Text("seu@email.com ou REPLAY-XXXX") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -447,7 +498,7 @@ fun ActivationScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(28.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 // Botão de Envio
                 Button(
@@ -465,11 +516,67 @@ fun ActivationScreen(
                     if (isActivating) {
                         CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                     } else {
-                        Text("ATIVAR APLICATIVO", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.White)
+                        Text("ENTRAR NO SISTEMA", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.White)
                     }
                 }
                 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Botão para ir para a tela de vendas / planos
+                OutlinedButton(
+                    onClick = {
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://meusrecortes.vercel.app/vendas.html"))
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Erro ao abrir tela de planos", Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = Color(0xFF10B981)
+                    ),
+                    border = BorderStroke(1.dp, Color(0xFF10B981).copy(alpha = 0.6f)),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(44.dp)
+                ) {
+                    Text("NOVO POR AQUI? EXPERIMENTE GRÁTIS 🚀", fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Botão "Entrar como Admin" (WebView interna)
+                OutlinedButton(
+                    onClick = { onAdminClick() },
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = Color(0xFFBA68C8)
+                    ),
+                    border = BorderStroke(1.dp, Color(0xFFBA68C8).copy(alpha = 0.5f)),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(44.dp)
+                ) {
+                    Text("PAINEL DO GESTOR 🔑", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Botão "Entrar no Sistema (Modo Desenvolvedor)"
+                TextButton(
+                    onClick = { onBypass() },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Entrar no Sistema (Modo Teste/Dev) 🚀", 
+                        fontWeight = FontWeight.SemiBold, 
+                        fontSize = 12.sp, 
+                        color = Color.Gray
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(18.dp))
                 
                 Text(
                     text = "Suporte para comercialização: comercial@exemplo.com",

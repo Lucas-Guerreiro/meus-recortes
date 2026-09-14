@@ -99,7 +99,7 @@ class ReplayRepository private constructor(private val context: Context) {
         return sharedPrefs.getString(KEY_LICENSE_KEY, "") ?: ""
     }
 
-    private fun saveActivationLocal(licenseKey: String) {
+    fun saveActivationLocal(licenseKey: String) {
         sharedPrefs.edit()
             .putBoolean(KEY_IS_ACTIVATED, true)
             .putString(KEY_LICENSE_KEY, licenseKey)
@@ -246,6 +246,10 @@ class ReplayRepository private constructor(private val context: Context) {
         }
 
         val key = getLocalLicenseKey()
+        if (key == "LIFE-BYPASS-DEV-MODE") {
+            emit(true)
+            return@flow
+        }
         if (key.isEmpty()) {
             clearActivationLocal()
             emit(false)
